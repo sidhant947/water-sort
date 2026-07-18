@@ -18,9 +18,9 @@ class ProgressRepository {
     await _hiveService.saveProgress(progress);
   }
 
-  Future<void> completeLevel(int moves) async {
+  Future<void> completeLevel(int levelNumber, int moves) async {
     final current = await getProgress();
-    final updated = current.incrementLevel().addMoves(moves);
+    final updated = current.completeLevel(levelNumber).addMoves(moves);
     await saveProgress(updated);
   }
 

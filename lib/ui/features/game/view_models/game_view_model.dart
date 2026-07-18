@@ -33,6 +33,7 @@ class GameViewModelState {
     this.moveHistory = const [],
     this.timeLeft,
     this.isTimeOut = false,
+    this.isProgressSaved = false,
   });
 
   final GameLevel? level;
@@ -49,6 +50,7 @@ class GameViewModelState {
   final List<MoveSnapshot> moveHistory;
   final int? timeLeft;
   final bool isTimeOut;
+  final bool isProgressSaved;
 
   bool get canUndo => moveHistory.isNotEmpty && !isComplete && !isTimeOut;
 
@@ -67,6 +69,7 @@ class GameViewModelState {
     List<MoveSnapshot>? moveHistory,
     int? Function()? timeLeft,
     bool? isTimeOut,
+    bool? isProgressSaved,
   }) {
     return GameViewModelState(
       level: level ?? this.level,
@@ -86,6 +89,7 @@ class GameViewModelState {
       moveHistory: moveHistory ?? this.moveHistory,
       timeLeft: timeLeft != null ? timeLeft() : this.timeLeft,
       isTimeOut: isTimeOut ?? this.isTimeOut,
+      isProgressSaved: isProgressSaved ?? this.isProgressSaved,
     );
   }
 }
@@ -308,14 +312,19 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
       isComplete: isComplete,
       moveHistory: [...state.moveHistory, snapshot],
     );
+
+    if (isComplete) {
+      await completeLevel();
+    }
   }
 
   Future<void> completeLevel() async {
-    if (state.level == null || !state.isComplete) return;
+    if (state.level == null || !state.isComplete || state.isProgressSaved) return;
+    state = state.copyWith(isProgressSaved: true);
     if (state.isRandomMode) {
       await _progressRepository.addRandomLevelMoves(state.moveCount);
     } else {
-      await _progressRepository.completeLevel(state.moveCount);
+      await _progressRepository.completeLevel(state.level!.levelNumber, state.moveCount);
     }
   }
 

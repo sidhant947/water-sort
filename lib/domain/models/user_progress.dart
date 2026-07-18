@@ -25,10 +25,12 @@ class UserProgress {
     );
   }
 
-  UserProgress incrementLevel() {
+  UserProgress completeLevel(int levelNumber) {
+    final newHighest = levelNumber > highestLevelCompleted ? levelNumber : highestLevelCompleted;
+    final newCurrent = levelNumber >= currentLevel ? levelNumber + 1 : currentLevel;
     return UserProgress(
-      currentLevel: currentLevel + 1,
-      highestLevelCompleted: currentLevel,
+      currentLevel: newCurrent,
+      highestLevelCompleted: newHighest,
       totalMoves: totalMoves,
     );
   }
