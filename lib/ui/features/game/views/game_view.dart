@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:watersort/ui/core/theme/app_colors.dart';
 import 'package:watersort/ui/core/widgets/tangible_button.dart';
@@ -505,44 +506,52 @@ class _GameViewState extends ConsumerState<GameView> {
                 ),
               ),
               const SizedBox(height: 28),
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: TangibleButton(
-                      text: 'Home',
-                      isSecondary: true,
-                      height: 50,
-                      onPressed: () {
+                  TangibleButton(
+                    text: state.isRandomMode ? 'Play Again' : 'Next Level',
+                    height: 50,
+                    onPressed: () async {
+                      final notifier = ref.read(gameViewModelProvider.notifier);
+                      await notifier.completeLevel();
+                      if (!mounted) return;
+                      if (context.mounted) {
                         Navigator.pop(context);
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 2,
-                    child: TangibleButton(
-                      text: state.isRandomMode ? 'Play Again' : 'Next Level',
-                      height: 50,
-                      onPressed: () async {
-                        final notifier = ref.read(gameViewModelProvider.notifier);
-                        await notifier.completeLevel();
-                        if (!mounted) return;
-                        if (context.mounted) {
-                          Navigator.pop(context);
-                          if (state.isRandomMode) {
-                            notifier.loadRandomLevel(state.randomDifficulty ?? 'Easy');
-                          } else {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => GameView(levelNumber: widget.levelNumber + 1),
-                              ),
-                            );
-                          }
+                        if (state.isRandomMode) {
+                          notifier.loadRandomLevel(state.randomDifficulty ?? 'Easy');
+                        } else {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GameView(levelNumber: widget.levelNumber + 1),
+                            ),
+                          );
                         }
-                      },
-                    ),
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TangibleButton(
+                    text: 'Home',
+                    isSecondary: true,
+                    height: 50,
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TangibleButton(
+                    text: 'Buy Us a Coffee ☕',
+                    isSecondary: true,
+                    height: 50,
+                    onPressed: () async {
+                      final Uri url = Uri.parse('https://github.com/sponsors/sidhant947');
+                      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                        debugPrint('Could not launch $url');
+                      }
+                    },
                   ),
                 ],
               ),
