@@ -8,6 +8,7 @@ import 'package:watersort/ui/features/game/views/game_view.dart';
 import 'package:watersort/ui/features/how_to_play/views/how_to_play_view.dart';
 import 'package:watersort/ui/features/level_select/views/level_select_view.dart';
 import 'package:watersort/ui/providers.dart';
+import 'package:watersort/domain/models/user_profile.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
@@ -64,6 +65,45 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       ),
                     ),
                   ),
+                  if (state.activeProfile != null)
+                    GestureDetector(
+                      onTap: () => _showProfileSwitcherDialog(context),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1C1C22),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: AppColors.accent.withOpacity(0.3),
+                            width: 1.0,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.accent.withOpacity(0.1),
+                              blurRadius: 8,
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              state.activeProfile!.avatarEmoji,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              state.activeProfile!.name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   GestureDetector(
                     onTap: () => _launchUrl('https://buymeacoffee.com/sidhant947'),
                     child: Container(
@@ -398,6 +438,425 @@ class _HomeViewState extends ConsumerState<HomeView> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showProfileSwitcherDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Consumer(
+          builder: (context, ref, child) {
+            final state = ref.watch(homeViewModelProvider);
+            return Dialog(
+              backgroundColor: const Color(0xFF181818),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(
+                  color: Color(0xFF222222),
+                  width: 1.0,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'SELECT PROFILE',
+                      style: TextStyle(
+                        fontFamily: 'BebasNeue',
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.headingWhite,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 280),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: state.profiles.map((profile) {
+                            final isActive = state.activeProfile?.id == profile.id;
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: InkWell(
+                                onTap: () {
+                                  ref.read(homeViewModelProvider.notifier).switchProfile(profile.id);
+                                  Navigator.pop(context);
+                                },
+                                borderRadius: BorderRadius.circular(8),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: isActive
+                                        ? AppColors.accent.withOpacity(0.08)
+                                        : const Color(0xFF1E1E24),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: isActive
+                                          ? AppColors.accent.withOpacity(0.5)
+                                          : const Color(0xFF2C2C35),
+                                      width: isActive ? 1.5 : 1.0,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: const BoxDecoration(
+                                          color: Color(0xFF121216),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Text(
+                                          profile.avatarEmoji,
+                                          style: const TextStyle(fontSize: 18),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          profile.name,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.edit_rounded,
+                                          color: Colors.white54,
+                                          size: 18,
+                                        ),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          _showEditProfileDialog(context, profile);
+                                        },
+                                      ),
+                                      if (isActive)
+                                        const Icon(
+                                          Icons.check_circle_rounded,
+                                          color: AppColors.accent,
+                                          size: 20,
+                                        )
+                                      else if (state.profiles.length > 1)
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.delete_outline_rounded,
+                                            color: Colors.redAccent,
+                                            size: 20,
+                                          ),
+                                          onPressed: () {
+                                            ref.read(homeViewModelProvider.notifier).deleteProfile(profile.id);
+                                          },
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TangibleButton(
+                      text: '+ CREATE NEW PROFILE',
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _showCreateProfileDialog(context);
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text(
+                        'CANCEL',
+                        style: TextStyle(
+                          fontFamily: 'BebasNeue',
+                          color: AppColors.subtext,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showCreateProfileDialog(BuildContext context) {
+    final nameController = TextEditingController();
+    String selectedEmoji = '🧪';
+    final emojis = ['🧪', '🧬', '💧', '🎨', '🔮', '🌟', '🔥', '🏆', '👾', '🚀'];
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              backgroundColor: const Color(0xFF181818),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(
+                  color: Color(0xFF222222),
+                  width: 1.0,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'CREATE PROFILE',
+                      style: TextStyle(
+                        fontFamily: 'BebasNeue',
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.headingWhite,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: nameController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Enter profile name',
+                        hintStyle: const TextStyle(color: Color(0xFF666666)),
+                        filled: true,
+                        fillColor: const Color(0xFF1C1C22),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Color(0xFF2C2C35)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: AppColors.accent),
+                        ),
+                      ),
+                      onChanged: (_) => setState(() {}),
+                    ),
+                    const SizedBox(height: 16),
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'SELECT AVATAR EMOJI',
+                        style: TextStyle(
+                          color: AppColors.subtext,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: emojis.map((emoji) {
+                        final isSelected = selectedEmoji == emoji;
+                        return GestureDetector(
+                          onTap: () => setState(() => selectedEmoji = emoji),
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.accent.withOpacity(0.12)
+                                  : const Color(0xFF1C1C22),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isSelected ? AppColors.accent : const Color(0xFF2C2C35),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Text(
+                              emoji,
+                              style: const TextStyle(fontSize: 20),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 24),
+                    TangibleButton(
+                      text: 'CREATE',
+                      onPressed: nameController.text.trim().isEmpty
+                          ? null
+                          : () {
+                              ref.read(homeViewModelProvider.notifier).createProfile(
+                                    nameController.text.trim(),
+                                    selectedEmoji,
+                                  );
+                              Navigator.pop(context);
+                            },
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text(
+                        'CANCEL',
+                        style: TextStyle(
+                          fontFamily: 'BebasNeue',
+                          color: AppColors.subtext,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showEditProfileDialog(BuildContext context, UserProfile profile) {
+    final nameController = TextEditingController(text: profile.name);
+    String selectedEmoji = profile.avatarEmoji;
+    final emojis = ['🧪', '🧬', '💧', '🎨', '🔮', '🌟', '🔥', '🏆', '👾', '🚀'];
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              backgroundColor: const Color(0xFF181818),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(
+                  color: Color(0xFF222222),
+                  width: 1.0,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'EDIT PROFILE',
+                      style: TextStyle(
+                        fontFamily: 'BebasNeue',
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.headingWhite,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: nameController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Enter profile name',
+                        hintStyle: const TextStyle(color: Color(0xFF666666)),
+                        filled: true,
+                        fillColor: const Color(0xFF1C1C22),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Color(0xFF2C2C35)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: AppColors.accent),
+                        ),
+                      ),
+                      onChanged: (_) => setState(() {}),
+                    ),
+                    const SizedBox(height: 16),
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'SELECT AVATAR EMOJI',
+                        style: TextStyle(
+                          color: AppColors.subtext,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: emojis.map((emoji) {
+                        final isSelected = selectedEmoji == emoji;
+                        return GestureDetector(
+                          onTap: () => setState(() => selectedEmoji = emoji),
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.accent.withOpacity(0.12)
+                                  : const Color(0xFF1C1C22),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isSelected ? AppColors.accent : const Color(0xFF2C2C35),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Text(
+                              emoji,
+                              style: const TextStyle(fontSize: 20),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 24),
+                    TangibleButton(
+                      text: 'SAVE CHANGES',
+                      onPressed: nameController.text.trim().isEmpty
+                          ? null
+                          : () {
+                              final updated = profile.copyWith(
+                                name: nameController.text.trim(),
+                                avatarEmoji: selectedEmoji,
+                              );
+                              ref.read(homeViewModelProvider.notifier).updateProfile(updated);
+                              Navigator.pop(context);
+                            },
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _showProfileSwitcherDialog(context);
+                      },
+                      child: const Text(
+                        'CANCEL',
+                        style: TextStyle(
+                          fontFamily: 'BebasNeue',
+                          color: AppColors.subtext,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

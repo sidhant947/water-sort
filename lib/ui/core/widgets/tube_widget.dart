@@ -41,7 +41,7 @@ class _TubeWidgetState extends State<TubeWidget> with SingleTickerProviderStateM
     _bubbleSeed = math.Random().nextInt(1000000);
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 8),
     );
     _controller.value = math.Random().nextDouble();
     _controller.repeat();
