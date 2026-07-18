@@ -31,14 +31,18 @@ class TubeWidget extends StatefulWidget {
 
 class _TubeWidgetState extends State<TubeWidget> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  late final int _bubbleSeed;
 
   @override
   void initState() {
     super.initState();
+    _bubbleSeed = math.Random().nextInt(1000000);
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
-    )..repeat();
+    );
+    _controller.value = math.Random().nextDouble();
+    _controller.repeat();
   }
 
   @override
@@ -175,6 +179,7 @@ class _TubeWidgetState extends State<TubeWidget> with SingleTickerProviderStateM
                                     painter: _BubblePainter(
                                       animationValue: _controller.value,
                                       isFast: widget.isSelected,
+                                      seed: _bubbleSeed,
                                     ),
                                   ),
                                 ),
@@ -270,10 +275,12 @@ class _TubeWidgetState extends State<TubeWidget> with SingleTickerProviderStateM
 class _BubblePainter extends CustomPainter {
   final double animationValue;
   final bool isFast;
+  final int seed;
 
   _BubblePainter({
     required this.animationValue,
     required this.isFast,
+    required this.seed,
   });
 
   @override
@@ -282,14 +289,14 @@ class _BubblePainter extends CustomPainter {
       ..color = Colors.white.withOpacity(0.35)
       ..style = PaintingStyle.fill;
 
-    final double speedMultiplier = isFast ? 1.8 : 1.0;
-    final random = math.Random(42);
+    final double speedMultiplier = isFast ? 2.0 : 1.0;
+    final random = math.Random(seed);
 
     for (int i = 0; i < 6; i++) {
       final xRatio = random.nextDouble();
       final yRatio = random.nextDouble();
       final bubbleSize = random.nextDouble() * 2.5 + 1.5;
-      final speed = random.nextDouble() * 0.35 + 0.25;
+      final speed = (random.nextInt(2) + 1).toDouble(); // 1.0 or 2.0 integer speeds for seamless wrap-around
 
       final x = xRatio * size.width;
       double y = size.height - ((yRatio + animationValue * speed * speedMultiplier) % 1.0) * size.height;
@@ -322,7 +329,7 @@ class _WavePainter extends CustomPainter {
     path.moveTo(0, size.height);
 
     final double amplitude = isFast ? 4.5 : 2.5;
-    final double frequencyFactor = isFast ? 2.5 : 1.0;
+    final double frequencyFactor = isFast ? 2.0 : 1.0; // Integer frequency factors for seamless wrap-around
 
     for (double x = 0; x <= size.width; x++) {
       final y = size.height / 2 +
