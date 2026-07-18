@@ -11,6 +11,7 @@ class TubeWidget extends StatefulWidget {
     this.isPouringSource = false,
     this.isPouringTarget = false,
     this.pourToLeft = false,
+    this.pouringOffset = Offset.zero,
     this.onTap,
     this.height = 180,
     this.width = 56,
@@ -21,6 +22,7 @@ class TubeWidget extends StatefulWidget {
   final bool isPouringSource;
   final bool isPouringTarget;
   final bool pourToLeft;
+  final Offset pouringOffset;
   final VoidCallback? onTap;
   final double height;
   final double width;
@@ -96,8 +98,7 @@ class _TubeWidgetState extends State<TubeWidget> with SingleTickerProviderStateM
           offset: Offset(0, yOffset),
           child: GestureDetector(
             onTap: widget.onTap,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
+            child: Container(
               height: widget.height,
               width: widget.width,
               decoration: BoxDecoration(
@@ -107,28 +108,28 @@ class _TubeWidgetState extends State<TubeWidget> with SingleTickerProviderStateM
                   top: Radius.circular(topRadius),
                 ),
                 border: Border.all(
-                  color: widget.isSelected ? accentColor : const Color(0xFF222222),
-                  width: widget.isSelected ? 2.2 : borderWidth,
+                  color: widget.isSelected ? accentColor : const Color(0xFF2D2D35),
+                  width: widget.isSelected ? 2.4 : borderWidth,
                 ),
                 boxShadow: [
                   if (widget.isSelected)
                     BoxShadow(
-                      color: accentColor.withOpacity(0.45 * pulseScale),
-                      blurRadius: 16 * pulseScale,
-                      spreadRadius: 1.5 * pulseScale,
+                      color: accentColor.withOpacity(0.5 * pulseScale),
+                      blurRadius: 18 * pulseScale,
+                      spreadRadius: 1.8 * pulseScale,
                     )
                   else
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.35),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
+                      color: Colors.black.withOpacity(0.4),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
                     ),
                 ],
               ),
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  // Liquid columns
+                  // Liquid and animations
                   Positioned.fill(
                     child: ClipRRect(
                       borderRadius: BorderRadius.vertical(
@@ -137,7 +138,19 @@ class _TubeWidgetState extends State<TubeWidget> with SingleTickerProviderStateM
                       ),
                       child: Stack(
                         children: [
-                          // Liquid Segments Columns
+                          // 3D Liquid columns painter with meniscus
+                          Positioned.fill(
+                            child: CustomPaint(
+                              painter: _LiquidPainter(
+                                colors: widget.tube.colors,
+                                capacity: widget.tube.capacity,
+                                animationValue: _controller.value,
+                                isFast: widget.isSelected,
+                              ),
+                            ),
+                          ),
+
+                          // Icons Overlay Column
                           Positioned.fill(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.end,
@@ -146,51 +159,53 @@ class _TubeWidgetState extends State<TubeWidget> with SingleTickerProviderStateM
                                 (i) {
                                   final logicalIndex = widget.tube.colors.length - 1 - i;
                                   final color = widget.tube.colors[logicalIndex];
-                                  return _buildLiquidBlock(color);
+                                  final segmentHeight = (widget.height - 12) / widget.tube.capacity;
+                                  return SizedBox(
+                                    height: segmentHeight,
+                                    width: widget.width,
+                                    child: Center(
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.18),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          _getIconForColor(color),
+                                          color: Colors.white.withOpacity(0.85),
+                                          size: widget.width * 0.36,
+                                        ),
+                                      ),
+                                    ),
+                                  );
                                 },
                               ),
                             ),
                           ),
 
-                          // Wave effect matching current filled height
+                          // Bubbles rising inside liquid
                           if (widget.tube.colors.isNotEmpty)
-                            Positioned(
-                              bottom: (widget.tube.colors.length / widget.tube.capacity) * (widget.height - 12) - 4,
-                              left: 0,
-                              right: 0,
-                              height: 10,
-                              child: CustomPaint(
-                                painter: _WavePainter(
-                                  color: widget.tube.topColor!,
-                                  animationValue: _controller.value,
-                                  isFast: widget.isSelected,
+                            Positioned.fill(
+                              child: ClipPath(
+                                clipper: _LiquidClipper(
+                                  liquidHeight: (widget.tube.colors.length / widget.tube.capacity) * (widget.height - 12),
+                                ),
+                                child: CustomPaint(
+                                  painter: _BubblePainter(
+                                    animationValue: _controller.value,
+                                    isFast: widget.isSelected,
+                                    seed: _bubbleSeed,
+                                  ),
                                 ),
                               ),
                             ),
 
-                          // Bubbles rising inside liquid columns
-                          if (widget.tube.colors.isNotEmpty)
-                            Positioned.fill(
-                              child: ClipPath(
-                                  clipper: _LiquidClipper(
-                                    liquidHeight: (widget.tube.colors.length / widget.tube.capacity) * (widget.height - 12),
-                                  ),
-                                  child: CustomPaint(
-                                    painter: _BubblePainter(
-                                      animationValue: _controller.value,
-                                      isFast: widget.isSelected,
-                                      seed: _bubbleSeed,
-                                    ),
-                                  ),
-                                ),
-                            ),
-
-                          // Sheen reflection
+                          // Dual glass specularity highlights (Left sheen)
                           Positioned(
                             top: 4,
                             left: 4,
                             bottom: 4,
-                            width: 6,
+                            width: 7,
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
@@ -198,10 +213,26 @@ class _TubeWidgetState extends State<TubeWidget> with SingleTickerProviderStateM
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
                                   colors: [
-                                    Colors.white.withOpacity(0.18),
+                                    Colors.white.withOpacity(0.25),
+                                    Colors.white.withOpacity(0.05),
                                     Colors.white.withOpacity(0),
                                   ],
+                                  stops: const [0.0, 0.6, 1.0],
                                 ),
+                              ),
+                            ),
+                          ),
+
+                          // Dual glass specularity highlights (Right sheen)
+                          Positioned(
+                            top: 4,
+                            right: 3,
+                            bottom: 4,
+                            width: 3,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.white.withOpacity(0.1),
                               ),
                             ),
                           ),
@@ -210,7 +241,7 @@ class _TubeWidgetState extends State<TubeWidget> with SingleTickerProviderStateM
                     ),
                   ),
 
-                  // Lip/Rim
+                  // Rim/Lip highlights
                   Positioned(
                     top: -2.5,
                     left: -2,
@@ -218,10 +249,10 @@ class _TubeWidgetState extends State<TubeWidget> with SingleTickerProviderStateM
                     height: 5,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1C1C22),
+                        color: const Color(0xFF1E1E26),
                         borderRadius: BorderRadius.circular(2.5),
                         border: Border.all(
-                          color: widget.isSelected ? accentColor : const Color(0xFF222222),
+                          color: widget.isSelected ? accentColor : const Color(0xFF33333C),
                           width: 1.0,
                         ),
                       ),
@@ -235,41 +266,83 @@ class _TubeWidgetState extends State<TubeWidget> with SingleTickerProviderStateM
       },
     );
   }
+}
 
-  Widget _buildLiquidBlock(Color color) {
-    final segmentHeight = (widget.height - 12) / widget.tube.capacity;
+class _LiquidPainter extends CustomPainter {
+  _LiquidPainter({
+    required this.colors,
+    required this.capacity,
+    required this.animationValue,
+    required this.isFast,
+  });
 
-    return Container(
-      height: segmentHeight,
-      width: widget.width,
-      decoration: BoxDecoration(
-        color: color,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+  final List<Color> colors;
+  final int capacity;
+  final double animationValue;
+  final bool isFast;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (colors.isEmpty) return;
+
+    final double segmentHeight = size.height / capacity;
+    const double meniscusDepth = 3.5;
+
+    for (int i = 0; i < colors.length; i++) {
+      final color = colors[i];
+      final double bottomY = size.height - (i * segmentHeight);
+      final double topY = size.height - ((i + 1) * segmentHeight);
+
+      final path = Path();
+      path.moveTo(0, bottomY);
+
+      if (i == 0) {
+        path.lineTo(size.width, bottomY);
+      } else {
+        path.quadraticBezierTo(size.width / 2, bottomY + meniscusDepth, size.width, bottomY);
+      }
+
+      path.lineTo(size.width, topY);
+
+      if (i == colors.length - 1) {
+        final double amplitude = isFast ? 3.5 : 2.0;
+        final double frequencyFactor = isFast ? 2.0 : 1.0;
+        for (double x = size.width; x >= 0; x -= 2) {
+          final y = topY +
+              math.sin((x / size.width * 2 * math.pi) + (animationValue * 2 * math.pi * frequencyFactor)) * amplitude;
+          path.lineTo(x, y);
+        }
+      } else {
+        path.quadraticBezierTo(size.width / 2, topY + meniscusDepth, 0, topY);
+      }
+
+      path.close();
+
+      final Color highlightColor = Color.alphaBlend(Colors.white.withOpacity(0.18), color);
+      final Color shadowColor = Color.alphaBlend(Colors.black.withOpacity(0.15), color);
+      
+      final paint = Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
           colors: [
-            color.withOpacity(0.95),
+            shadowColor,
+            highlightColor,
             color,
-            color.withOpacity(0.85),
+            shadowColor,
           ],
-          stops: const [0.0, 0.6, 1.0],
-        ),
-      ),
-      alignment: Alignment.center,
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.18),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          _getIconForColor(color),
-          color: Colors.white.withOpacity(0.85),
-          size: widget.width * 0.36,
-        ),
-      ),
-    );
+          stops: const [0.0, 0.22, 0.65, 1.0],
+        ).createShader(Rect.fromLTRB(0, topY, size.width, bottomY));
+
+      canvas.drawPath(path, paint);
+    }
   }
+
+  @override
+  bool shouldRepaint(covariant _LiquidPainter oldDelegate) =>
+      oldDelegate.colors != colors ||
+      oldDelegate.animationValue != animationValue ||
+      oldDelegate.isFast != isFast;
 }
 
 class _BubblePainter extends CustomPainter {
@@ -306,44 +379,6 @@ class _BubblePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _BubblePainter oldDelegate) => true;
-}
-
-class _WavePainter extends CustomPainter {
-  final Color color;
-  final double animationValue;
-  final bool isFast;
-
-  _WavePainter({
-    required this.color,
-    required this.animationValue,
-    required this.isFast,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    final path = Path();
-    path.moveTo(0, size.height);
-
-    final double amplitude = isFast ? 4.5 : 2.5;
-    final double frequencyFactor = isFast ? 2.0 : 1.0; // Integer frequency factors for seamless wrap-around
-
-    for (double x = 0; x <= size.width; x++) {
-      final y = size.height / 2 +
-          math.sin((x / size.width * 2 * math.pi) + (animationValue * 2 * math.pi * frequencyFactor)) * amplitude;
-      path.lineTo(x, y);
-    }
-
-    path.lineTo(size.width, size.height);
-    path.close();
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _WavePainter oldDelegate) => true;
 }
 
 class _LiquidClipper extends CustomClipper<Path> {

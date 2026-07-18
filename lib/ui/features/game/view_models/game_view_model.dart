@@ -283,8 +283,7 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
       pouringToIndex: () => toIndex,
     );
 
-    // Brief delay for animation
-    await Future.delayed(const Duration(milliseconds: 50));
+    // Transfer water instantly
 
     final newFromColors = List<Color>.from(fromTube.colors)
       ..removeRange(fromTube.colors.length - pourCount, fromTube.colors.length);

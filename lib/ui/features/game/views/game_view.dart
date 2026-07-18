@@ -268,6 +268,22 @@ class _GameViewState extends ConsumerState<GameView> {
                           final pourToLeft = isSource &&
                               state.pouringToIndex != null &&
                               state.pouringToIndex! < i;
+
+                          Offset pouringOffset = Offset.zero;
+                          if (isSource && state.pouringToIndex != null) {
+                            final from = i;
+                            final to = state.pouringToIndex!;
+                            final fromRow = from ~/ maxPerRow;
+                            final fromCol = from % maxPerRow;
+                            final toRow = to ~/ maxPerRow;
+                            final toCol = to % maxPerRow;
+                            final colDiff = toCol - fromCol;
+                            final rowDiff = toRow - fromRow;
+                            final dx = colDiff * (tubeWidth + spacing);
+                            final dy = rowDiff * (tubeHeight + spacing) - tubeHeight - 12.0;
+                            pouringOffset = Offset(dx, dy);
+                          }
+
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: spacing / 2),
                             child: TubeWidget(
@@ -276,6 +292,7 @@ class _GameViewState extends ConsumerState<GameView> {
                               isPouringSource: isSource,
                               isPouringTarget: isTarget,
                               pourToLeft: pourToLeft,
+                              pouringOffset: pouringOffset,
                               height: tubeHeight,
                               width: tubeWidth,
                               onTap: () => ref.read(gameViewModelProvider.notifier).selectTube(i),
