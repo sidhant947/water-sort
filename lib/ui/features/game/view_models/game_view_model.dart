@@ -106,6 +106,9 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
   Timer? _timer;
 
   bool _shouldHaveTimer({required bool isRandom, required int levelNumber, required String difficulty}) {
+    if (!_progressRepository.isTimerEnabled()) {
+      return false;
+    }
     if (isRandom) {
       return difficulty != 'Easy';
     } else {

@@ -56,6 +56,14 @@ class ProgressRepository {
     await _hiveService.clearProgress(activeId);
   }
 
+  bool isTimerEnabled() {
+    return _hiveService.isTimerEnabled();
+  }
+
+  Future<void> setTimerEnabled(bool enabled) async {
+    await _hiveService.setTimerEnabled(enabled);
+  }
+
   Future<List<UserProfile>> getProfiles() async {
     return _hiveService.getProfiles();
   }

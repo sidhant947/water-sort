@@ -284,6 +284,15 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   ),
                 ),
               ),
+
+              const SizedBox(height: 12),
+
+              // Timer Toggle Button (Secondary Button)
+              TangibleButton(
+                text: state.isTimerEnabled ? 'Timer: ON' : 'Timer: OFF',
+                isSecondary: true,
+                onPressed: () => ref.read(homeViewModelProvider.notifier).toggleTimer(),
+              ),
               const Spacer(),
             ],
           ),

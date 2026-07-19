@@ -10,24 +10,28 @@ class HomeViewModelState {
     this.activeProfile,
     this.profiles = const [],
     this.isLoading = false,
+    this.isTimerEnabled = true,
   });
 
   final UserProgress? progress;
   final UserProfile? activeProfile;
   final List<UserProfile> profiles;
   final bool isLoading;
+  final bool isTimerEnabled;
 
   HomeViewModelState copyWith({
     UserProgress? progress,
     UserProfile? Function()? activeProfile,
     List<UserProfile>? profiles,
     bool? isLoading,
+    bool? isTimerEnabled,
   }) {
     return HomeViewModelState(
       progress: progress ?? this.progress,
       activeProfile: activeProfile != null ? activeProfile() : this.activeProfile,
       profiles: profiles ?? this.profiles,
       isLoading: isLoading ?? this.isLoading,
+      isTimerEnabled: isTimerEnabled ?? this.isTimerEnabled,
     );
   }
 }
@@ -44,15 +48,23 @@ class HomeViewModel extends StateNotifier<HomeViewModelState> {
       final progress = await _progressRepository.getProgress();
       final activeProfile = await _progressRepository.getActiveProfile();
       final profiles = await _progressRepository.getProfiles();
+      final isTimerEnabled = _progressRepository.isTimerEnabled();
       state = state.copyWith(
         progress: progress,
         activeProfile: () => activeProfile,
         profiles: profiles,
+        isTimerEnabled: isTimerEnabled,
         isLoading: false,
       );
     } catch (e) {
       state = state.copyWith(isLoading: false);
     }
+  }
+
+  Future<void> toggleTimer() async {
+    final newValue = !state.isTimerEnabled;
+    await _progressRepository.setTimerEnabled(newValue);
+    state = state.copyWith(isTimerEnabled: newValue);
   }
 
   Future<void> resetProgress() async {

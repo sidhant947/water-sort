@@ -73,6 +73,8 @@ class HiveService {
     }
   }
 
+  static const String _timerEnabledKey = 'timer_enabled';
+
   Future<String?> getActiveProfileId() async {
     return _settingsBox.get(_activeProfileKey) as String?;
   }
@@ -91,5 +93,13 @@ class HiveService {
 
   Future<void> clearProgress(String profileId) async {
     await _progressBox.delete('progress_$profileId');
+  }
+
+  bool isTimerEnabled() {
+    return _settingsBox.get(_timerEnabledKey, defaultValue: true) as bool;
+  }
+
+  Future<void> setTimerEnabled(bool enabled) async {
+    await _settingsBox.put(_timerEnabledKey, enabled);
   }
 }
