@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:watersort/ui/core/theme/app_colors.dart';
 import 'package:watersort/ui/core/widgets/tangible_button.dart';
 import 'package:watersort/ui/core/widgets/tube_widget.dart';
 import 'package:watersort/ui/features/game/view_models/game_view_model.dart';
 import 'package:watersort/ui/providers.dart';
+import 'package:watersort/ui/features/support/views/support_view.dart';
 
 class GameView extends ConsumerStatefulWidget {
   const GameView({
@@ -505,6 +505,18 @@ class _GameViewState extends ConsumerState<GameView> {
                   height: 1.2,
                 ),
               ),
+              const SizedBox(height: 6),
+              Text(
+                'The optimal number of moves for this level is ${state.level?.optimalMoves ?? 0}.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'BebasNeue',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.subtext,
+                  height: 1.2,
+                ),
+              ),
               const SizedBox(height: 28),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -546,11 +558,13 @@ class _GameViewState extends ConsumerState<GameView> {
                     text: 'Buy Us a Coffee ☕',
                     isSecondary: true,
                     height: 50,
-                    onPressed: () async {
-                      final Uri url = Uri.parse('https://github.com/sponsors/sidhant947');
-                      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-                        debugPrint('Could not launch $url');
-                      }
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SupportView(),
+                        ),
+                      );
                     },
                   ),
                 ],

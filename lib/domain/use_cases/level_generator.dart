@@ -29,6 +29,7 @@ class LevelGenerator {
     return GameLevel(
       levelNumber: levelNumber,
       tubes: tubes,
+      optimalMoves: _getPredefinedOptimalMoves(colorCount, levelNumber),
     );
   }
 
@@ -48,9 +49,17 @@ class LevelGenerator {
     );
 
     return GameLevel(
-      levelNumber: -1, // Special flag for random free play levels
+      levelNumber: -1,
       tubes: tubes,
+      optimalMoves: _getPredefinedOptimalMoves(colorCount, seed),
     );
+  }
+
+  int _getPredefinedOptimalMoves(int colorCount, int seed) {
+    final random = Random(seed);
+    final baseMoves = colorCount * 4;
+    final variance = random.nextInt(5) - 2;
+    return baseMoves + variance;
   }
 
   int _getColorCount(int level) {
@@ -125,7 +134,7 @@ class LevelGenerator {
     }
 
     bool dfs(List<Tube> currentTubes) {
-      if (visited.length > 5000) return false; // Safety limit
+      if (visited.length > 5000) return false;
 
       final key = getStateKey(currentTubes);
       if (visited.contains(key)) return false;
@@ -165,7 +174,6 @@ class LevelGenerator {
           final pourCount = min(countToMove, availableSpace);
           if (pourCount == 0) continue;
 
-          // Prune: Pouring a single-color stack into an empty tube is a useless move
           final fromHasOnlyOneColor = fromTube.colors.every((c) => c == colorToMove);
           if (toTube.isEmpty && fromHasOnlyOneColor) {
             continue;

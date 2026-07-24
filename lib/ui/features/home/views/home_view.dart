@@ -9,6 +9,7 @@ import 'package:watersort/ui/features/how_to_play/views/how_to_play_view.dart';
 import 'package:watersort/ui/features/level_select/views/level_select_view.dart';
 import 'package:watersort/ui/providers.dart';
 import 'package:watersort/domain/models/user_profile.dart';
+import 'package:watersort/ui/features/support/views/support_view.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
@@ -105,7 +106,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       ),
                     ),
                   GestureDetector(
-                    onTap: () => _launchUrl('https://buymeacoffee.com/sidhant947'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SupportView(),
+                        ),
+                      );
+                    },
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
