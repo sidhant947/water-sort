@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +21,79 @@ class SettingsView extends ConsumerWidget {
       try {
         await launchUrl(url, mode: LaunchMode.platformDefault);
       } catch (_) {}
+    }
+  }
+
+  Future<void> _exportBackup(BuildContext context, WidgetRef ref) async {
+    try {
+      final jsonString = await ref
+          .read(homeViewModelProvider.notifier)
+          .exportBackupJson();
+      final bytes = Uint8List.fromList(utf8.encode(jsonString));
+      final fileName =
+          'watersort_backup_${DateTime.now().toIso8601String().replaceAll(':', '-').split('.').first}.json';
+      final uri = await FilePicker.saveFile(
+        fileName: fileName,
+        bytes: bytes,
+        mimeType: 'application/json',
+      );
+      if (uri != null && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Backup exported successfully.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to export backup.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _importBackup(BuildContext context, WidgetRef ref) async {
+    try {
+      final files = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+      if (files.isEmpty) return;
+
+      final file = files.first;
+      final bytes = await file.readAsBytes();
+      final jsonString = utf8.decode(bytes);
+
+      final success = await ref
+          .read(homeViewModelProvider.notifier)
+          .importBackupJson(jsonString);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              success
+                  ? 'Backup imported successfully.'
+                  : 'Invalid backup file format.',
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to import backup.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
@@ -281,6 +357,39 @@ class SettingsView extends ConsumerWidget {
                         onTap: () => ref
                             .read(homeViewModelProvider.notifier)
                             .toggleUndoDecrementsMoves(),
+                      ),
+                    ],
+                  ),
+                  _buildSectionHeader(
+                    icon: Icons.backup_rounded,
+                    title: 'BACKUP & RESTORE',
+                  ),
+                  _buildCardGroup(
+                    children: [
+                      _buildActionRow(
+                        icon: Icons.file_upload_rounded,
+                        iconColor: const Color(0xFF38BDF8),
+                        title: 'EXPORT BACKUP',
+                        description: 'Save your progress',
+                        onTap: () => _exportBackup(context, ref),
+                        trailing: const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          color: Color(0xFF7E7E90),
+                          size: 14,
+                        ),
+                      ),
+                      _buildDivider(),
+                      _buildActionRow(
+                        icon: Icons.file_download_rounded,
+                        iconColor: const Color(0xFF10B981),
+                        title: 'IMPORT BACKUP',
+                        description: 'Restore your progress',
+                        onTap: () => _importBackup(context, ref),
+                        trailing: const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          color: Color(0xFF7E7E90),
+                          size: 14,
+                        ),
                       ),
                     ],
                   ),

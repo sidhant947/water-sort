@@ -244,5 +244,21 @@ class ProgressRepository {
   Future<void> resetWaterColors() async {
     await _hiveService.setCustomWaterColors(null);
   }
+
+  Future<Map<String, dynamic>> exportBackup() {
+    return _hiveService.exportBackup();
+  }
+
+  Future<bool> importBackup(Map<String, dynamic> data) async {
+    final success = await _hiveService.importBackup(data);
+    if (success) {
+      _cachedActiveProfileId = null;
+      _cachedProgress = null;
+      final progress = await getProgress();
+      _progressController.add(progress);
+    }
+    return success;
+  }
 }
+
 

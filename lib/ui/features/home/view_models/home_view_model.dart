@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -319,5 +320,31 @@ class HomeViewModel extends StateNotifier<HomeViewModelState> {
     AppColors.setWaterColors(defaults);
     state = state.copyWith(customWaterColors: defaults);
   }
+
+  Future<String> exportBackupJson() async {
+    final map = await _progressRepository.exportBackup();
+    return jsonEncode(map);
+  }
+
+  Future<bool> importBackupJson(String jsonString) async {
+    try {
+      final decoded = jsonDecode(jsonString);
+      if (decoded is! Map<String, dynamic>) {
+        if (decoded is Map) {
+          final converted = decoded.cast<String, dynamic>();
+          final success = await _progressRepository.importBackup(converted);
+          if (success) await loadProgress();
+          return success;
+        }
+        return false;
+      }
+      final success = await _progressRepository.importBackup(decoded);
+      if (success) await loadProgress();
+      return success;
+    } catch (_) {
+      return false;
+    }
+  }
 }
+
 

@@ -283,5 +283,130 @@ class HiveService {
       await _settingsBox.put('${profileId}_custom_water_colors', colors);
     }
   }
+
+  Future<Map<String, dynamic>> exportBackup() async {
+    final profiles = await getProfiles();
+    final activeProfileId = await getActiveProfileId();
+    final profilesData = <Map<String, dynamic>>[];
+    for (final profile in profiles) {
+      final progress = await getProgress(profile.id);
+      final rawStars = _settingsBox.get('${profile.id}_level_stars');
+      final Map<String, int> stars = {};
+      if (rawStars is Map) {
+        rawStars.forEach((k, v) {
+          final intVal = (v is num) ? v.toInt() : int.tryParse(v.toString());
+          if (intVal != null) {
+            stars[k.toString()] = intVal;
+          }
+        });
+      }
+      profilesData.add({
+        'profile': {
+          'id': profile.id,
+          'name': profile.name,
+          'createdAt': profile.createdAt.toIso8601String(),
+          'avatarEmoji': profile.avatarEmoji,
+        },
+        'progress': {
+          'currentLevel': progress.currentLevel,
+          'highestLevelCompleted': progress.highestLevelCompleted,
+          'totalMoves': progress.totalMoves,
+        },
+        'stars': stars,
+        'settings': {
+          'timer_enabled': _settingsBox.get('${profile.id}_timer_enabled'),
+          'super_hard_mode': _settingsBox.get('${profile.id}_super_hard_mode'),
+          'blur_solved_tubes': _settingsBox.get('${profile.id}_blur_solved_tubes'),
+          'instant_pouring': _settingsBox.get('${profile.id}_instant_pouring'),
+          'hint_helper': _settingsBox.get('${profile.id}_hint_helper'),
+          'check_button_enabled': _settingsBox.get('${profile.id}_check_button_enabled'),
+          'undo_decrements_moves': _settingsBox.get('${profile.id}_undo_decrements_moves'),
+          'sound_effects': _settingsBox.get('${profile.id}_sound_effects'),
+          'tube_size': _settingsBox.get('${profile.id}_tube_size'),
+          'theme_pack': _settingsBox.get('${profile.id}_theme_pack'),
+          'themes_unlocked': _settingsBox.get('${profile.id}_themes_unlocked'),
+        },
+      });
+    }
+    return {
+      'version': 1,
+      'exportedAt': DateTime.now().toIso8601String(),
+      'activeProfileId': activeProfileId,
+      'themes_unlocked': _settingsBox.get('themes_unlocked'),
+      'profiles': profilesData,
+    };
+  }
+
+  Future<bool> importBackup(Map<String, dynamic> data) async {
+    final rawProfiles = data['profiles'];
+    if (rawProfiles is! List || rawProfiles.isEmpty) {
+      return false;
+    }
+    for (final item in rawProfiles) {
+      if (item is! Map) continue;
+      final profMap = item['profile'];
+      if (profMap is! Map) continue;
+      final id = profMap['id']?.toString();
+      final name = profMap['name']?.toString() ?? 'Player';
+      if (id == null || id.isEmpty) continue;
+      DateTime createdAt = DateTime.now();
+      if (profMap['createdAt'] != null) {
+        createdAt = DateTime.tryParse(profMap['createdAt'].toString()) ?? DateTime.now();
+      }
+      final avatarEmoji = profMap['avatarEmoji']?.toString() ?? '🧪';
+      await saveProfile(UserProfile(
+        id: id,
+        name: name,
+        createdAt: createdAt,
+        avatarEmoji: avatarEmoji,
+      ));
+
+      final progMap = item['progress'];
+      if (progMap is Map) {
+        await saveProgress(
+          id,
+          UserProgress(
+            currentLevel: (progMap['currentLevel'] as num?)?.toInt() ?? 1,
+            highestLevelCompleted: (progMap['highestLevelCompleted'] as num?)?.toInt() ?? 0,
+            totalMoves: (progMap['totalMoves'] as num?)?.toInt() ?? 0,
+          ),
+        );
+      }
+
+      final starsMap = item['stars'];
+      if (starsMap is Map) {
+        final Map<dynamic, dynamic> stars = {};
+        starsMap.forEach((k, v) {
+          final kInt = int.tryParse(k.toString());
+          if (kInt != null && v is num) {
+            stars[kInt] = v.toInt();
+          }
+        });
+        await _settingsBox.put('${id}_level_stars', stars);
+      }
+
+      final settMap = item['settings'];
+      if (settMap is Map) {
+        for (final entry in settMap.entries) {
+          if (entry.value != null) {
+            await _settingsBox.put('${id}_${entry.key}', entry.value);
+          }
+        }
+      }
+    }
+
+    if (data['themes_unlocked'] == true) {
+      await _settingsBox.put('themes_unlocked', true);
+    }
+
+    final activeId = data['activeProfileId']?.toString();
+    if (activeId != null && _profilesBox.containsKey(activeId)) {
+      await setActiveProfileId(activeId);
+    } else if (_profilesBox.isNotEmpty) {
+      await setActiveProfileId(_profilesBox.keys.first.toString());
+    }
+    return true;
+  }
 }
+
 
