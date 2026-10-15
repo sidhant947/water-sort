@@ -117,5 +117,37 @@ class AppColors {
   static void setWaterColors(List<Color> colors) {
     _waterColors = List.of(colors);
   }
+
+  static const List<IconData> waterIcons = [
+    Icons.favorite_rounded,
+    Icons.water_drop_rounded,
+    Icons.eco_rounded,
+    Icons.wb_sunny_rounded,
+    Icons.star_rounded,
+    Icons.dark_mode_rounded,
+    Icons.auto_awesome_rounded,
+    Icons.ac_unit_rounded,
+    Icons.palette_rounded,
+    Icons.whatshot_rounded,
+    Icons.cloud_rounded,
+    Icons.diamond_rounded,
+    Icons.cookie_rounded,
+    Icons.bolt_rounded,
+    Icons.nightlight_rounded,
+    Icons.grass_rounded,
+  ];
+
+  static IconData getIconForSlot(int index) {
+    if (index >= 0 && index < waterIcons.length) {
+      return waterIcons[index];
+    }
+    return Icons.brightness_1_rounded;
+  }
+
+  static IconData getIconForColor(Color color) {
+    final hex = color.toARGB32() & 0xFFFFFF;
+    final index = _waterColors.indexWhere((c) => (c.toARGB32() & 0xFFFFFF) == hex);
+    return getIconForSlot(index);
+  }
 }
 

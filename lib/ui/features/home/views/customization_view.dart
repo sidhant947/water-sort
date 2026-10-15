@@ -848,7 +848,7 @@ class CustomizationView extends ConsumerWidget {
                     ],
                   ),
                   child: Icon(
-                    _iconForSlot(index),
+                    AppColors.getIconForSlot(index),
                     size: 16,
                     color: isDarkText ? Colors.black87 : Colors.white,
                   ),
@@ -874,37 +874,6 @@ class CustomizationView extends ConsumerWidget {
         );
       },
     );
-  }
-
-  IconData _iconForSlot(int index) {
-    switch (index) {
-      case 0:
-        return Icons.water_drop_rounded;
-      case 1:
-        return Icons.local_fire_department_rounded;
-      case 2:
-        return Icons.grass_rounded;
-      case 3:
-        return Icons.wb_sunny_rounded;
-      case 4:
-        return Icons.bolt_rounded;
-      case 5:
-        return Icons.nightlight_round;
-      case 6:
-        return Icons.bubble_chart_rounded;
-      case 7:
-        return Icons.star_rounded;
-      case 8:
-        return Icons.favorite_rounded;
-      case 9:
-        return Icons.eco_rounded;
-      case 10:
-        return Icons.spa_rounded;
-      case 11:
-        return Icons.diamond_rounded;
-      default:
-        return Icons.circle;
-    }
   }
 
   void _showColorPickerDialog(
@@ -981,7 +950,7 @@ class CustomizationView extends ConsumerWidget {
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
-                            _iconForSlot(slotIndex),
+                            AppColors.getIconForSlot(slotIndex),
                             size: 18,
                             color: isDarkText ? Colors.black87 : Colors.white,
                           ),
