@@ -9,7 +9,7 @@ import 'package:watersort/domain/models/tube.dart';
 import 'package:watersort/ui/features/game/view_models/game_view_model.dart';
 import 'package:watersort/ui/core/theme/app_colors.dart';
 
-class WaterSortGame extends FlameGame with TapCallbacks {
+class WaterSortGame extends FlameGame with TapCallbacks, ScaleCallbacks {
   WaterSortGame({
     required GameViewModelState initialState,
     required this.onTubeTap,
@@ -19,6 +19,13 @@ class WaterSortGame extends FlameGame with TapCallbacks {
   GameViewModelState _state;
   final Function(int) onTubeTap;
   final VoidCallback onPourComplete;
+
+  double _zoom = 1.0;
+  final Vector2 _pan = Vector2.zero();
+  double _startZoom = 1.0;
+
+  double get zoom => _zoom;
+  Vector2 get pan => _pan;
 
   final List<TubeComponent> _tubes = [];
   List<TubeComponent> get tubes => _tubes;
@@ -46,6 +53,8 @@ class WaterSortGame extends FlameGame with TapCallbacks {
     }
     _syncTubes(isUndo: isUndo, levelChanged: levelChanged);
     if (levelChanged) {
+      _zoom = 1.0;
+      _pan.setZero();
       for (final t in _tubes) {
         t.sloshDisplacement = 0.0;
         t.sloshVelocity = 0.0;
@@ -359,29 +368,60 @@ class WaterSortGame extends FlameGame with TapCallbacks {
   }
 
   @override
+  void onScaleStart(ScaleStartEvent event) {
+    super.onScaleStart(event);
+    _startZoom = _zoom;
+  }
+
+  @override
+  void onScaleUpdate(ScaleUpdateEvent event) {
+    super.onScaleUpdate(event);
+    if (event.pointerCount >= 2) {
+      _zoom = (_startZoom * event.scale).clamp(1.0, 2.5);
+      _pan.add(event.focalPointDelta);
+      final maxPanX = (size.x * (_zoom - 1.0)) / 2;
+      final maxPanY = (size.y * (_zoom - 1.0)) / 2;
+      _pan.x = _pan.x.clamp(-maxPanX, maxPanX);
+      _pan.y = _pan.y.clamp(-maxPanY, maxPanY);
+    }
+  }
+
+  @override
+  void onScaleEnd(ScaleEndEvent event) {
+    super.onScaleEnd(event);
+    if (_zoom <= 1.0) {
+      _pan.setZero();
+    }
+  }
+
+  @override
   void onTapDown(TapDownEvent event) {
     if (_activePour != null) return;
-    
+
+    Vector2 tapPos = event.localPosition;
+    if (_zoom != 1.0 || _pan.x != 0 || _pan.y != 0) {
+      final center = size / 2;
+      tapPos = (tapPos - center - _pan) / _zoom + center;
+    }
+
     TubeComponent? tappedTube;
 
-    // 1. Direct hit check
     for (final tube in _tubes) {
-      if (tube.containsPoint(event.localPosition)) {
+      if (tube.containsPoint(tapPos)) {
         tappedTube = tube;
         break;
       }
     }
 
-    // 2. Proximity check with expanded margin if no direct hit
     if (tappedTube == null) {
       double minDistance = double.infinity;
       const double maxTouchMargin = 24.0;
 
       for (final tube in _tubes) {
         final Rect expandedBounds = tube.toRect().inflate(maxTouchMargin);
-        if (expandedBounds.contains(event.localPosition.toOffset())) {
+        if (expandedBounds.contains(tapPos.toOffset())) {
           final Vector2 center = tube.position + tube.size / 2;
-          final double dist = center.distanceTo(event.localPosition);
+          final double dist = center.distanceTo(tapPos);
           if (dist < minDistance) {
             minDistance = dist;
             tappedTube = tube;
@@ -448,6 +488,13 @@ class WaterSortGame extends FlameGame with TapCallbacks {
 
   @override
   void render(Canvas canvas) {
+    canvas.save();
+    if (_zoom != 1.0 || _pan.x != 0 || _pan.y != 0) {
+      final center = size / 2;
+      canvas.translate(center.x + _pan.x, center.y + _pan.y);
+      canvas.scale(_zoom);
+      canvas.translate(-center.x, -center.y);
+    }
     super.render(canvas);
 
     for (final r in _ripples) {
@@ -502,6 +549,7 @@ class WaterSortGame extends FlameGame with TapCallbacks {
 
       canvas.restore();
     }
+    canvas.restore();
   }
 }
 

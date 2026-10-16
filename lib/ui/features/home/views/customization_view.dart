@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -268,53 +269,103 @@ class CustomizationView extends ConsumerWidget {
                   _buildSectionHeader(
                     icon: Icons.water_drop_rounded,
                     title: 'CUSTOMIZE LIQUID COLORS',
-                    trailing: GestureDetector(
-                      onTap: () {
-                        HapticFeedback.lightImpact();
-                        ref
-                            .read(homeViewModelProvider.notifier)
-                            .resetWaterColors();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Liquid colors reset to default.'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1E1E28),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: const Color(0xFF333342),
-                            width: 1.0,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.refresh_rounded,
-                              size: 12,
-                              color: AppColors.subtext,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            _showJsonThemeDialog(
+                              context,
+                              ref,
+                              state.customWaterColors,
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'RESET ALL',
-                              style: TextStyle(
-                                fontFamily: 'BebasNeue',
-                                fontSize: 12,
-                                color: AppColors.subtext,
-                                letterSpacing: 0.6,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1E1E28),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: const Color(0xFF333342),
+                                width: 1.0,
                               ),
                             ),
-                          ],
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.code_rounded,
+                                  size: 12,
+                                  color: AppColors.accent,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'JSON',
+                                  style: TextStyle(
+                                    fontFamily: 'BebasNeue',
+                                    fontSize: 12,
+                                    color: AppColors.accent,
+                                    letterSpacing: 0.6,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 6),
+                        GestureDetector(
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            ref
+                                .read(homeViewModelProvider.notifier)
+                                .resetWaterColors();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Liquid colors reset to default.'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1E1E28),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: const Color(0xFF333342),
+                                width: 1.0,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.refresh_rounded,
+                                  size: 12,
+                                  color: AppColors.subtext,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'RESET ALL',
+                                  style: TextStyle(
+                                    fontFamily: 'BebasNeue',
+                                    fontSize: 12,
+                                    color: AppColors.subtext,
+                                    letterSpacing: 0.6,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   _buildLiquidColorsGrid(context, ref, state.customWaterColors),
@@ -883,6 +934,7 @@ class CustomizationView extends ConsumerWidget {
     Color initialColor,
   ) {
     Color currentColor = initialColor;
+    HSLColor currentHsl = HSLColor.fromColor(initialColor);
     final textController = TextEditingController(
       text: (initialColor.toARGB32() & 0xFFFFFF)
           .toRadixString(16)
@@ -1034,6 +1086,7 @@ class CustomizationView extends ConsumerWidget {
                                   if (parsed != null) {
                                     setState(() {
                                       currentColor = Color(parsed);
+                                      currentHsl = HSLColor.fromColor(currentColor);
                                     });
                                   }
                                 }
@@ -1053,6 +1106,72 @@ class CustomizationView extends ConsumerWidget {
                           ),
                         ],
                       ),
+                    ),
+                    const SizedBox(height: 16),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'HSL ADJUSTMENT',
+                        style: TextStyle(
+                          fontFamily: 'BebasNeue',
+                          fontSize: 13,
+                          color: AppColors.subtext,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    _buildHslSliderRow(
+                      label: 'H',
+                      valueText: '${currentHsl.hue.round()}°',
+                      value: currentHsl.hue,
+                      min: 0,
+                      max: 360,
+                      onChanged: (val) {
+                        setState(() {
+                          currentHsl = currentHsl.withHue(val);
+                          currentColor = currentHsl.toColor();
+                          textController.text = (currentColor.toARGB32() & 0xFFFFFF)
+                              .toRadixString(16)
+                              .padLeft(6, '0')
+                              .toUpperCase();
+                        });
+                      },
+                    ),
+                    _buildHslSliderRow(
+                      label: 'S',
+                      valueText: '${(currentHsl.saturation * 100).round()}%',
+                      value: currentHsl.saturation,
+                      min: 0,
+                      max: 1,
+                      onChanged: (val) {
+                        setState(() {
+                          currentHsl = currentHsl.withSaturation(val);
+                          currentColor = currentHsl.toColor();
+                          textController.text = (currentColor.toARGB32() & 0xFFFFFF)
+                              .toRadixString(16)
+                              .padLeft(6, '0')
+                              .toUpperCase();
+                        });
+                      },
+                    ),
+                    _buildHslSliderRow(
+                      label: 'L',
+                      valueText: '${(currentHsl.lightness * 100).round()}%',
+                      value: currentHsl.lightness,
+                      min: 0,
+                      max: 1,
+                      onChanged: (val) {
+                        setState(() {
+                          currentHsl = currentHsl.withLightness(val);
+                          currentColor = currentHsl.toColor();
+                          textController.text = (currentColor.toARGB32() & 0xFFFFFF)
+                              .toRadixString(16)
+                              .padLeft(6, '0')
+                              .toUpperCase();
+                        });
+                      },
                     ),
                     const SizedBox(height: 16),
                     FittedBox(
@@ -1082,6 +1201,7 @@ class CustomizationView extends ConsumerWidget {
                             HapticFeedback.selectionClick();
                             setState(() {
                               currentColor = color;
+                              currentHsl = HSLColor.fromColor(color);
                               textController.text =
                                   (color.toARGB32() & 0xFFFFFF)
                                       .toRadixString(16)
@@ -1146,6 +1266,7 @@ class CustomizationView extends ConsumerWidget {
                                         AppColors.defaultWaterColors[slotIndex];
                                     setState(() {
                                       currentColor = defaultColor;
+                                      currentHsl = HSLColor.fromColor(defaultColor);
                                       textController.text =
                                           (defaultColor.toARGB32() & 0xFFFFFF)
                                               .toRadixString(16)
@@ -1245,6 +1366,349 @@ class CustomizationView extends ConsumerWidget {
                           ),
                         );
                       },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildHslSliderRow({
+    required String label,
+    required String valueText,
+    required double value,
+    required double min,
+    required double max,
+    required ValueChanged<double> onChanged,
+  }) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 16,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'BebasNeue',
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: AppColors.subtext,
+            ),
+          ),
+        ),
+        Expanded(
+          child: SliderTheme(
+            data: SliderThemeData(
+              trackHeight: 3,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+              activeTrackColor: AppColors.accent,
+              inactiveTrackColor: const Color(0xFF282834),
+              thumbColor: Colors.white,
+            ),
+            child: Slider(
+              value: value.clamp(min, max),
+              min: min,
+              max: max,
+              onChanged: onChanged,
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 36,
+          child: Text(
+            valueText,
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: AppColors.headingWhite,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showJsonThemeDialog(
+    BuildContext context,
+    WidgetRef ref,
+    List<Color> currentColors,
+  ) {
+    final hexList = currentColors
+        .map(
+          (c) =>
+              '#${(c.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0').toUpperCase()}',
+        )
+        .toList();
+    final initialJson = const JsonEncoder.withIndent('  ').convert(hexList);
+    final textController = TextEditingController(text: initialJson);
+    String? errorMessage;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (ctx, setState) {
+            return Dialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 24,
+              ),
+              backgroundColor: const Color(0xFF181818),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: const BorderSide(color: Color(0xFF2A2A34), width: 1.0),
+              ),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: AppColors.accent.withValues(alpha: 0.16),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.code_rounded,
+                            size: 18,
+                            color: AppColors.accent,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'THEME JSON',
+                            style: TextStyle(
+                              fontFamily: 'BebasNeue',
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.headingWhite,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.copy_rounded,
+                            size: 18,
+                            color: Colors.white,
+                          ),
+                          onPressed: () async {
+                            await Clipboard.setData(
+                              ClipboardData(text: textController.text),
+                            );
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Theme JSON copied to clipboard.',
+                                  ),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.paste_rounded,
+                            size: 18,
+                            color: Colors.white,
+                          ),
+                          onPressed: () async {
+                            final data = await Clipboard.getData(
+                              Clipboard.kTextPlain,
+                            );
+                            if (data != null && data.text != null) {
+                              setState(() {
+                                textController.text = data.text!;
+                                errorMessage = null;
+                              });
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Copy, paste or edit 16 liquid colors formatted as a JSON array of hex codes.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.subtext,
+                        height: 1.3,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      height: 180,
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF101014),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color:
+                              errorMessage != null
+                                  ? Colors.redAccent
+                                  : const Color(0xFF282834),
+                        ),
+                      ),
+                      child: TextField(
+                        controller: textController,
+                        maxLines: null,
+                        expands: true,
+                        style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 12,
+                          color: Colors.white,
+                        ),
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ),
+                    if (errorMessage != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        errorMessage!,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.redAccent,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            side: const BorderSide(color: Color(0xFF333340)),
+                          ),
+                          onPressed: () => Navigator.pop(dialogContext),
+                          child: Text(
+                            'CANCEL',
+                            style: TextStyle(
+                              fontFamily: 'BebasNeue',
+                              fontSize: 14,
+                              color: AppColors.subtext,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            backgroundColor: AppColors.accent,
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 0,
+                          ),
+                          onPressed: () {
+                            try {
+                              final decoded = jsonDecode(textController.text);
+                              if (decoded is! List) {
+                                setState(() {
+                                  errorMessage =
+                                      'JSON must be a list of 16 hex colors.';
+                                });
+                                return;
+                              }
+                              if (decoded.length !=
+                                  AppColors.defaultWaterColors.length) {
+                                setState(() {
+                                  errorMessage =
+                                      'Must contain exactly ${AppColors.defaultWaterColors.length} colors (found ${decoded.length}).';
+                                });
+                                return;
+                              }
+                              final List<Color> parsedColors = [];
+                              for (var item in decoded) {
+                                if (item is! String) {
+                                  setState(() {
+                                    errorMessage =
+                                        'Every color item must be a hex string.';
+                                  });
+                                  return;
+                                }
+                                var clean = item.trim().replaceFirst('#', '');
+                                if (clean.length == 3) {
+                                  clean =
+                                      'FF${clean[0]}${clean[0]}${clean[1]}${clean[1]}${clean[2]}${clean[2]}';
+                                } else if (clean.length == 6) {
+                                  clean = 'FF$clean';
+                                } else if (clean.length != 8) {
+                                  setState(() {
+                                    errorMessage = 'Invalid hex color: $item';
+                                  });
+                                  return;
+                                }
+                                final val = int.tryParse(clean, radix: 16);
+                                if (val == null) {
+                                  setState(() {
+                                    errorMessage = 'Invalid hex color: $item';
+                                  });
+                                  return;
+                                }
+                                parsedColors.add(Color(val));
+                              }
+                              ref
+                                  .read(homeViewModelProvider.notifier)
+                                  .setAllWaterColors(parsedColors);
+                              Navigator.pop(dialogContext);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Theme applied successfully.'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            } catch (_) {
+                              setState(() {
+                                errorMessage = 'Invalid JSON syntax.';
+                              });
+                            }
+                          },
+                          child: const Text(
+                            'APPLY',
+                            style: TextStyle(
+                              fontFamily: 'BebasNeue',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

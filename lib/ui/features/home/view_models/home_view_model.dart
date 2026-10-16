@@ -314,6 +314,14 @@ class HomeViewModel extends StateNotifier<HomeViewModelState> {
     }
   }
 
+  Future<void> setAllWaterColors(List<Color> colors) async {
+    if (colors.length == AppColors.defaultWaterColors.length) {
+      await _progressRepository.saveWaterColors(colors);
+      AppColors.setWaterColors(colors);
+      state = state.copyWith(customWaterColors: List<Color>.of(colors));
+    }
+  }
+
   Future<void> resetWaterColors() async {
     await _progressRepository.resetWaterColors();
     final defaults = List<Color>.of(AppColors.defaultWaterColors);
