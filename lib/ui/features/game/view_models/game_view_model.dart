@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -690,50 +691,76 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
 
   List<WaterSortMove>? _cachedSolution;
 
-  bool showHint() {
-    if (state.level == null || state.isComplete || state.isTimeOut) return false;
-    final solver = LevelSolver();
+  bool _hintInFlight = false;
+  bool _checkInFlight = false;
 
-    if (_cachedSolution == null || _cachedSolution!.isEmpty) {
-      _cachedSolution = solver.solve(state.level!.tubes);
+  bool _isStale(GameLevel? levelBefore) =>
+      !mounted ||
+      !identical(state.level, levelBefore) ||
+      state.isComplete ||
+      state.isTimeOut;
+
+  /// Runs the solver off the UI thread. Returns the next hinted move's
+  /// success; false if unsolvable or the puzzle changed while searching.
+  Future<bool> showHint() async {
+    if (state.level == null || state.isComplete || state.isTimeOut) {
+      return false;
     }
-
-    if (_cachedSolution != null && _cachedSolution!.isNotEmpty) {
-      final firstMove = _cachedSolution!.first;
-      if (!isValidPour(firstMove.fromIndex, firstMove.toIndex)) {
-        _cachedSolution = solver.solve(state.level!.tubes);
+    if (_hintInFlight) return true;
+    _hintInFlight = true;
+    try {
+      final levelBefore = state.level;
+      var solution = _cachedSolution;
+      if (solution == null ||
+          solution.isEmpty ||
+          !isValidPour(solution.first.fromIndex, solution.first.toIndex)) {
+        solution = await compute(LevelSolver.solveTask, levelBefore!.tubes);
       }
+      if (_isStale(levelBefore)) return false;
+      _cachedSolution = solution;
+      if (solution != null && solution.isNotEmpty) {
+        HapticFeedback.lightImpact();
+        final nextMove = solution.first;
+        state = state.copyWith(
+          selectedTubeIndex: () => null,
+          hintFromIndex: () => nextMove.fromIndex,
+          hintToIndex: () => nextMove.toIndex,
+        );
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('GameViewModel: hint failed: $e');
+      return false;
+    } finally {
+      _hintInFlight = false;
     }
-
-    if (_cachedSolution != null && _cachedSolution!.isNotEmpty) {
-      HapticFeedback.lightImpact();
-      final nextMove = _cachedSolution!.first;
-      state = state.copyWith(
-        selectedTubeIndex: () => null,
-        hintFromIndex: () => nextMove.fromIndex,
-        hintToIndex: () => nextMove.toIndex,
-      );
-      return true;
-    }
-    return false;
   }
 
-  bool checkSolvability() {
-    if (state.level == null || state.isTimeOut) return false;
-    if (state.isComplete) return true;
-    final solver = LevelSolver();
-    if (_cachedSolution == null || _cachedSolution!.isEmpty) {
-      _cachedSolution = solver.solve(state.level!.tubes);
+  /// Returns null when ignored (a check is already running, or the puzzle
+  /// changed while searching).
+  Future<SolvabilityStatus?> checkSolvability() async {
+    if (state.level == null ||
+        state.isComplete ||
+        state.isTimeOut ||
+        _checkInFlight) {
+      return null;
     }
-    if (_cachedSolution != null && _cachedSolution!.isNotEmpty) {
-      final firstMove = _cachedSolution!.first;
-      if (!isValidPour(firstMove.fromIndex, firstMove.toIndex)) {
-        _cachedSolution = solver.solve(state.level!.tubes);
+    _checkInFlight = true;
+    try {
+      final levelBefore = state.level;
+      final result = await compute(LevelSolver.checkTask, levelBefore!.tubes);
+      if (_isStale(levelBefore)) return null;
+      if (result.status == SolvabilityStatus.solvable) {
+        _cachedSolution = result.moves;
       }
+      return result.status;
+    } catch (e) {
+      debugPrint('GameViewModel: solvability check failed: $e');
+      return SolvabilityStatus.inconclusive;
+    } finally {
+      _checkInFlight = false;
     }
-    return _cachedSolution != null &&
-        (_cachedSolution!.isNotEmpty ||
-            state.level!.tubes.every((t) => t.isEmpty || t.isSolved));
   }
 
   @override

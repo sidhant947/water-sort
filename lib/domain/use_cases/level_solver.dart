@@ -8,10 +8,32 @@ class WaterSortMove {
   WaterSortMove({required this.fromIndex, required this.toIndex});
 }
 
+enum SolvabilityStatus { solvable, unsolvable, inconclusive }
+
+class SolveResult {
+  const SolveResult({required this.status, this.moves});
+
+  final SolvabilityStatus status;
+  final List<WaterSortMove>? moves;
+}
+
 class LevelSolver {
-  List<WaterSortMove>? solve(List<Tube> initialTubes, {int maxVisited = 150000}) {
+  /// Top-level-friendly entry points so the search can run via `compute()`.
+  static List<WaterSortMove>? solveTask(List<Tube> tubes) =>
+      LevelSolver().solve(tubes);
+
+  static SolveResult checkTask(List<Tube> tubes) =>
+      LevelSolver().solveDetailed(tubes);
+
+  List<WaterSortMove>? solve(List<Tube> initialTubes, {int maxVisited = 150000}) =>
+      solveDetailed(initialTubes, maxVisited: maxVisited).moves;
+
+  /// Like [solve], but distinguishes "no solution exists" from "gave up
+  /// after [maxVisited] states".
+  SolveResult solveDetailed(List<Tube> initialTubes, {int maxVisited = 150000}) {
     final visited = <String>{};
     List<WaterSortMove>? result;
+    bool limitReached = false;
 
     String serializeState(List<Tube> tubes) {
       final keys = tubes.map((t) {
@@ -27,11 +49,14 @@ class LevelSolver {
     }
 
     bool dfs(List<Tube> currentTubes, List<WaterSortMove> path) {
-      if (visited.length >= maxVisited) return false;
-
       if (isComplete(currentTubes)) {
         result = List.from(path);
         return true;
+      }
+
+      if (visited.length >= maxVisited) {
+        limitReached = true;
+        return false;
       }
 
       final stateKey = serializeState(currentTubes);
@@ -60,7 +85,14 @@ class LevelSolver {
     }
 
     dfs(initialTubes, []);
-    return result;
+    return SolveResult(
+      status: result != null
+          ? SolvabilityStatus.solvable
+          : limitReached
+              ? SolvabilityStatus.inconclusive
+              : SolvabilityStatus.unsolvable,
+      moves: result,
+    );
   }
 
   List<WaterSortMove> _getValidMoves(List<Tube> tubes) {
