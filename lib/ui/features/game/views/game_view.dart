@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:watersort/domain/use_cases/level_solver.dart';
 import 'package:flame/game.dart';
 import 'package:flame_audio/flame_audio.dart';
 
@@ -380,14 +381,19 @@ class _GameViewState extends ConsumerState<GameView> {
                     ),
                   ),
                   child: GestureDetector(
-                    onTap: () {
-                      final isSolvable = ref
+                    onTap: () async {
+                      final result = await ref
                           .read(gameViewModelProvider.notifier)
                           .checkSolvability();
+                      if (result == null || !mounted) return;
                       setState(() {
-                        _solvabilityTooltipMessage = isSolvable
-                            ? 'Level is solvable'
-                            : 'Level is not solvable';
+                        _solvabilityTooltipMessage = switch (result) {
+                          SolvabilityStatus.solvable => 'Level is solvable',
+                          SolvabilityStatus.unsolvable =>
+                            'Level is not solvable',
+                          SolvabilityStatus.inconclusive =>
+                            'Could not determine. Try again after a few moves.',
+                        };
                       });
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         if (mounted) {
@@ -425,9 +431,10 @@ class _GameViewState extends ConsumerState<GameView> {
                 )
               else
                 GestureDetector(
-                  onTap: () {
-                    final success = ref.read(gameViewModelProvider.notifier).showHint();
-                    if (!success) {
+                  onTap: () async {
+                    final success =
+                        await ref.read(gameViewModelProvider.notifier).showHint();
+                    if (!success && mounted) {
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
