@@ -380,35 +380,48 @@ class _GameViewState extends ConsumerState<GameView> {
                     ),
                   ),
                   child: GestureDetector(
-                    onTap: () {
-                      final isSolvable = ref
-                          .read(gameViewModelProvider.notifier)
-                          .checkSolvability();
-                      setState(() {
-                        _solvabilityTooltipMessage = isSolvable
-                            ? 'Level is solvable'
-                            : 'Level is not solvable';
-                      });
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted) {
-                          _solvabilityTooltipKey.currentState
-                              ?.ensureTooltipVisible();
-                        }
-                      });
-                    },
+                    onTap: state.isSolving
+                        ? null
+                        : () async {
+                            final isSolvable = await ref
+                                .read(gameViewModelProvider.notifier)
+                                .checkSolvability();
+                            if (!mounted) return;
+                            setState(() {
+                              _solvabilityTooltipMessage = isSolvable
+                                  ? 'Level is solvable'
+                                  : 'Level is not solvable';
+                            });
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (mounted) {
+                                _solvabilityTooltipKey.currentState
+                                    ?.ensureTooltipVisible();
+                              }
+                            });
+                          },
                     behavior: HitTestBehavior.opaque,
                     child: Padding(
                       padding: const EdgeInsets.all(4.0),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Icon(
-                            Icons.check_circle_outline_rounded,
-                            size: 18,
-                            color: Color(0xFF00E676),
-                          ),
-                          SizedBox(width: 6),
-                          Text(
+                        children: [
+                          if (state.isSolving)
+                            const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Color(0xFF00E676),
+                              ),
+                            )
+                          else
+                            const Icon(
+                              Icons.check_circle_outline_rounded,
+                              size: 18,
+                              color: Color(0xFF00E676),
+                            ),
+                          const SizedBox(width: 6),
+                          const Text(
                             'CHECK',
                             style: TextStyle(
                               fontFamily: 'BebasNeue',
@@ -425,31 +438,48 @@ class _GameViewState extends ConsumerState<GameView> {
                 )
               else
                 GestureDetector(
-                  onTap: () {
-                    final success = ref.read(gameViewModelProvider.notifier).showHint();
-                    if (!success) {
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('No solution possible from current state. Try undoing some moves!'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    }
-                  },
+                  onTap: state.isSolving
+                      ? null
+                      : () async {
+                          final success = await ref
+                              .read(gameViewModelProvider.notifier)
+                              .showHint();
+                          if (!mounted) return;
+                          if (!success) {
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'No solution possible from current state. Try undoing some moves!',
+                                ),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          }
+                        },
                   behavior: HitTestBehavior.opaque,
                   child: Padding(
                     padding: const EdgeInsets.all(4.0),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(
-                          Icons.lightbulb_rounded,
-                          size: 18,
-                          color: Color(0xFFFFB300),
-                        ),
-                        SizedBox(width: 6),
-                        Text(
+                      children: [
+                        if (state.isSolving)
+                          const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Color(0xFFFFB300),
+                            ),
+                          )
+                        else
+                          const Icon(
+                            Icons.lightbulb_rounded,
+                            size: 18,
+                            color: Color(0xFFFFB300),
+                          ),
+                        const SizedBox(width: 6),
+                        const Text(
                           'HINT',
                           style: TextStyle(
                             fontFamily: 'BebasNeue',

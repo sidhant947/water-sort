@@ -30,6 +30,7 @@ class HomeViewModelState {
     this.areThemesUnlocked = false,
     this.customBackgroundImagePath,
     this.customWaterColors = AppColors.defaultWaterColors,
+    this.customWaterIconColors = const [],
   });
 
   final UserProgress? progress;
@@ -50,6 +51,7 @@ class HomeViewModelState {
   final bool areThemesUnlocked;
   final String? customBackgroundImagePath;
   final List<Color> customWaterColors;
+  final List<Color> customWaterIconColors;
 
   HomeViewModelState copyWith({
     UserProgress? progress,
@@ -70,6 +72,7 @@ class HomeViewModelState {
     bool? areThemesUnlocked,
     String? Function()? customBackgroundImagePath,
     List<Color>? customWaterColors,
+    List<Color>? customWaterIconColors,
   }) {
     return HomeViewModelState(
       progress: progress ?? this.progress,
@@ -97,6 +100,8 @@ class HomeViewModelState {
           ? customBackgroundImagePath()
           : this.customBackgroundImagePath,
       customWaterColors: customWaterColors ?? this.customWaterColors,
+      customWaterIconColors:
+          customWaterIconColors ?? this.customWaterIconColors,
     );
   }
 }
@@ -147,7 +152,9 @@ class HomeViewModel extends StateNotifier<HomeViewModelState> {
       );
       AppColors.setTheme(theme);
       final waterColors = _progressRepository.getWaterColors();
+      final waterIconColors = _progressRepository.getWaterIconColors();
       AppColors.setWaterColors(waterColors);
+      AppColors.setWaterIconColors(waterIconColors);
       state = state.copyWith(
         progress: progress,
         activeProfile: () => activeProfile,
@@ -166,6 +173,7 @@ class HomeViewModel extends StateNotifier<HomeViewModelState> {
         areThemesUnlocked: areThemesUnlocked,
         customBackgroundImagePath: () => customBgPath,
         customWaterColors: waterColors,
+        customWaterIconColors: waterIconColors,
         isLoading: false,
       );
     } catch (e) {
@@ -304,13 +312,26 @@ class HomeViewModel extends StateNotifier<HomeViewModelState> {
     await loadProgress();
   }
 
-  Future<void> setWaterColor(int index, Color color) async {
+  Future<void> setWaterColor(int index, Color color, [Color? iconColor]) async {
     final list = List<Color>.of(state.customWaterColors);
+    final iconList = List<Color>.of(
+      state.customWaterIconColors.isEmpty
+          ? AppColors.waterIconColors
+          : state.customWaterIconColors,
+    );
     if (index >= 0 && index < list.length) {
       list[index] = color;
+      if (iconColor != null && index < iconList.length) {
+        iconList[index] = iconColor;
+        await _progressRepository.saveWaterIconColors(iconList);
+        AppColors.setWaterIconColors(iconList);
+      }
       await _progressRepository.saveWaterColors(list);
       AppColors.setWaterColors(list);
-      state = state.copyWith(customWaterColors: list);
+      state = state.copyWith(
+        customWaterColors: list,
+        customWaterIconColors: iconList,
+      );
     }
   }
 
@@ -325,8 +346,16 @@ class HomeViewModel extends StateNotifier<HomeViewModelState> {
   Future<void> resetWaterColors() async {
     await _progressRepository.resetWaterColors();
     final defaults = List<Color>.of(AppColors.defaultWaterColors);
+    final defaultIcons = List.generate(
+      defaults.length,
+      (i) => defaults[i].computeLuminance() > 0.5 ? Colors.black : Colors.white,
+    );
     AppColors.setWaterColors(defaults);
-    state = state.copyWith(customWaterColors: defaults);
+    AppColors.setWaterIconColors(defaultIcons);
+    state = state.copyWith(
+      customWaterColors: defaults,
+      customWaterIconColors: defaultIcons,
+    );
   }
 
   Future<String> exportBackupJson() async {

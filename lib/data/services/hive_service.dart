@@ -284,6 +284,24 @@ class HiveService {
     }
   }
 
+  List<int>? getCustomWaterIconColors() {
+    final profileId = _getActiveProfileIdSync();
+    final val = _settingsBox.get('${profileId}_custom_water_icon_colors');
+    if (val is List) {
+      return val.cast<int>();
+    }
+    return null;
+  }
+
+  Future<void> setCustomWaterIconColors(List<int>? colors) async {
+    final profileId = _getActiveProfileIdSync();
+    if (colors == null) {
+      await _settingsBox.delete('${profileId}_custom_water_icon_colors');
+    } else {
+      await _settingsBox.put('${profileId}_custom_water_icon_colors', colors);
+    }
+  }
+
   Future<Map<String, dynamic>> exportBackup() async {
     final profiles = await getProfiles();
     final activeProfileId = await getActiveProfileId();

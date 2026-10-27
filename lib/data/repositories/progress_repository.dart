@@ -241,8 +241,25 @@ class ProgressRepository {
     await _hiveService.setCustomWaterColors(ints);
   }
 
+  List<Color> getWaterIconColors() {
+    final customInts = _hiveService.getCustomWaterIconColors();
+    if (customInts != null && customInts.length == AppColors.defaultWaterColors.length) {
+      return customInts.map((i) => Color(i)).toList();
+    }
+    return List.generate(
+      AppColors.defaultWaterColors.length,
+      (i) => AppColors.defaultWaterColors[i].computeLuminance() > 0.5 ? Colors.black : Colors.white,
+    );
+  }
+
+  Future<void> saveWaterIconColors(List<Color> colors) async {
+    final ints = colors.map((c) => c.toARGB32()).toList();
+    await _hiveService.setCustomWaterIconColors(ints);
+  }
+
   Future<void> resetWaterColors() async {
     await _hiveService.setCustomWaterColors(null);
+    await _hiveService.setCustomWaterIconColors(null);
   }
 
   Future<Map<String, dynamic>> exportBackup() {

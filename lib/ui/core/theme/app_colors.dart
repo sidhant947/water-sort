@@ -137,6 +137,32 @@ class AppColors {
     Icons.grass_rounded,
   ];
 
+  static final List<Color> _defaultWaterIconColors = List.generate(
+    defaultWaterColors.length,
+    (i) => defaultWaterColors[i].computeLuminance() > 0.5 ? Colors.black : Colors.white,
+  );
+
+  static List<Color> _waterIconColors = List.of(_defaultWaterIconColors);
+
+  static List<Color> get waterIconColors => _waterIconColors;
+
+  static void setWaterIconColors(List<Color> colors) {
+    _waterIconColors = List.of(colors);
+  }
+
+  static Color getIconColorForSlot(int index) {
+    if (index >= 0 && index < _waterIconColors.length) {
+      return _waterIconColors[index];
+    }
+    return Colors.white;
+  }
+
+  static Color getIconColorForColor(Color color) {
+    final hex = color.toARGB32() & 0xFFFFFF;
+    final index = _waterColors.indexWhere((c) => (c.toARGB32() & 0xFFFFFF) == hex);
+    return getIconColorForSlot(index);
+  }
+
   static IconData getIconForSlot(int index) {
     if (index >= 0 && index < waterIcons.length) {
       return waterIcons[index];

@@ -48,6 +48,7 @@ class GameViewModelState {
     this.hintFromIndex,
     this.hintToIndex,
     this.customBackgroundImagePath,
+    this.isSolving = false,
   });
 
   final GameLevel? level;
@@ -78,6 +79,7 @@ class GameViewModelState {
   final int? hintFromIndex;
   final int? hintToIndex;
   final String? customBackgroundImagePath;
+  final bool isSolving;
 
   bool get canUndo => moveHistory.isNotEmpty && !isComplete && !isTimeOut && pouringFromIndex == null;
 
@@ -111,6 +113,7 @@ class GameViewModelState {
     int? Function()? hintFromIndex,
     int? Function()? hintToIndex,
     String? Function()? customBackgroundImagePath,
+    bool? isSolving,
   }) {
     return GameViewModelState(
       level: level ?? this.level,
@@ -148,6 +151,7 @@ class GameViewModelState {
       customBackgroundImagePath: customBackgroundImagePath != null
           ? customBackgroundImagePath()
           : this.customBackgroundImagePath,
+      isSolving: isSolving ?? this.isSolving,
     );
   }
 }
@@ -617,6 +621,7 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
     }
 
     void resetLevel() {
+      _solveGeneration++;
       _cachedSolution = null;
       _progressRepository.clearActiveLevelState();
       if (state.level != null) {
@@ -636,6 +641,7 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
     void undoMove() {
       if (!state.canUndo || state.level == null) return;
 
+      _solveGeneration++;
       _cachedSolution = null;
       HapticFeedback.lightImpact();
 
@@ -688,52 +694,85 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
     _progressRepository.saveActiveLevelState(stateMap);
   }
 
+  int _solveGeneration = 0;
   List<WaterSortMove>? _cachedSolution;
 
-  bool showHint() {
-    if (state.level == null || state.isComplete || state.isTimeOut) return false;
-    final solver = LevelSolver();
+  Future<bool> showHint() async {
+    if (state.level == null || state.isComplete || state.isTimeOut || state.isSolving) return false;
+    final currentGen = ++_solveGeneration;
+    state = state.copyWith(isSolving: true);
 
-    if (_cachedSolution == null || _cachedSolution!.isEmpty) {
-      _cachedSolution = solver.solve(state.level!.tubes);
-    }
-
-    if (_cachedSolution != null && _cachedSolution!.isNotEmpty) {
-      final firstMove = _cachedSolution!.first;
-      if (!isValidPour(firstMove.fromIndex, firstMove.toIndex)) {
-        _cachedSolution = solver.solve(state.level!.tubes);
+    try {
+      if (_cachedSolution == null || _cachedSolution!.isEmpty) {
+        _cachedSolution = await LevelSolver.solveAsync(state.level!.tubes);
       }
-    }
 
-    if (_cachedSolution != null && _cachedSolution!.isNotEmpty) {
-      HapticFeedback.lightImpact();
-      final nextMove = _cachedSolution!.first;
-      state = state.copyWith(
-        selectedTubeIndex: () => null,
-        hintFromIndex: () => nextMove.fromIndex,
-        hintToIndex: () => nextMove.toIndex,
-      );
-      return true;
+      if (currentGen != _solveGeneration) return false;
+
+      if (_cachedSolution != null && _cachedSolution!.isNotEmpty) {
+        final firstMove = _cachedSolution!.first;
+        if (!isValidPour(firstMove.fromIndex, firstMove.toIndex)) {
+          _cachedSolution = await LevelSolver.solveAsync(state.level!.tubes);
+        }
+      }
+
+      if (currentGen != _solveGeneration) return false;
+
+      if (_cachedSolution != null && _cachedSolution!.isNotEmpty) {
+        HapticFeedback.lightImpact();
+        final nextMove = _cachedSolution!.first;
+        state = state.copyWith(
+          isSolving: false,
+          selectedTubeIndex: () => null,
+          hintFromIndex: () => nextMove.fromIndex,
+          hintToIndex: () => nextMove.toIndex,
+        );
+        return true;
+      }
+      state = state.copyWith(isSolving: false);
+      return false;
+    } catch (_) {
+      if (currentGen == _solveGeneration) {
+        state = state.copyWith(isSolving: false);
+      }
+      return false;
     }
-    return false;
   }
 
-  bool checkSolvability() {
-    if (state.level == null || state.isTimeOut) return false;
+  Future<bool> checkSolvability() async {
+    if (state.level == null || state.isTimeOut || state.isSolving) return false;
     if (state.isComplete) return true;
-    final solver = LevelSolver();
-    if (_cachedSolution == null || _cachedSolution!.isEmpty) {
-      _cachedSolution = solver.solve(state.level!.tubes);
-    }
-    if (_cachedSolution != null && _cachedSolution!.isNotEmpty) {
-      final firstMove = _cachedSolution!.first;
-      if (!isValidPour(firstMove.fromIndex, firstMove.toIndex)) {
-        _cachedSolution = solver.solve(state.level!.tubes);
+    final currentGen = ++_solveGeneration;
+    state = state.copyWith(isSolving: true);
+
+    try {
+      if (_cachedSolution == null || _cachedSolution!.isEmpty) {
+        _cachedSolution = await LevelSolver.solveAsync(state.level!.tubes);
       }
+
+      if (currentGen != _solveGeneration) return false;
+
+      if (_cachedSolution != null && _cachedSolution!.isNotEmpty) {
+        final firstMove = _cachedSolution!.first;
+        if (!isValidPour(firstMove.fromIndex, firstMove.toIndex)) {
+          _cachedSolution = await LevelSolver.solveAsync(state.level!.tubes);
+        }
+      }
+
+      if (currentGen != _solveGeneration) return false;
+
+      final isSolvable = _cachedSolution != null &&
+          (_cachedSolution!.isNotEmpty ||
+              state.level!.tubes.every((t) => t.isEmpty || t.isSolved));
+
+      state = state.copyWith(isSolving: false);
+      return isSolvable;
+    } catch (_) {
+      if (currentGen == _solveGeneration) {
+        state = state.copyWith(isSolving: false);
+      }
+      return false;
     }
-    return _cachedSolution != null &&
-        (_cachedSolution!.isNotEmpty ||
-            state.level!.tubes.every((t) => t.isEmpty || t.isSolved));
   }
 
   @override

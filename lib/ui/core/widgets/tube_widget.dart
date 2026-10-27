@@ -142,6 +142,8 @@ class _TubeWidgetState extends State<TubeWidget> with SingleTickerProviderStateM
                                   final color = widget.tube.colors[logicalIndex];
                                   final segmentHeight = (widget.height - 12) / widget.tube.capacity;
                                   final maxDiameter = math.min(widget.width * 0.68, segmentHeight * 0.68);
+                                  final iconColor = AppColors.getIconColorForColor(color);
+                                  final isBlack = iconColor.computeLuminance() < 0.5;
                                   return SizedBox(
                                     height: segmentHeight,
                                     width: widget.width,
@@ -151,12 +153,12 @@ class _TubeWidgetState extends State<TubeWidget> with SingleTickerProviderStateM
                                         width: maxDiameter,
                                         alignment: Alignment.center,
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.18),
+                                          color: (isBlack ? Colors.black : Colors.white).withValues(alpha: 0.18),
                                           shape: BoxShape.circle,
                                         ),
                                         child: Icon(
                                           _getIconForColor(color),
-                                          color: Colors.white.withOpacity(0.85),
+                                          color: (isBlack ? Colors.black87 : Colors.white).withValues(alpha: 0.85),
                                           size: maxDiameter * 0.6,
                                         ),
                                       ),

@@ -923,10 +923,12 @@ class TubeComponent extends PositionComponent {
       final icon = _getIconForColor(color);
       final codePoint = icon.codePoint;
       final fontFamily = icon.fontFamily ?? 'MaterialIcons';
+      final iconColor = AppColors.getIconColorForColor(color);
+      final isBlack = iconColor.computeLuminance() < 0.5;
 
       final maxDiameter = math.min(size.x * 0.85, segmentHeight * 0.85);
       final bgPaint = Paint()
-        ..color = Colors.white.withValues(alpha: 0.18)
+        ..color = (isBlack ? Colors.black : Colors.white).withValues(alpha: 0.18)
         ..style = PaintingStyle.fill;
       
       canvas.drawCircle(Offset(size.x / 2, centerY), maxDiameter / 2, bgPaint);
@@ -939,7 +941,7 @@ class TubeComponent extends PositionComponent {
           style: TextStyle(
             fontSize: iconSize,
             fontFamily: fontFamily,
-            color: Colors.white.withValues(alpha: 0.85),
+            color: (isBlack ? Colors.black87 : Colors.white).withValues(alpha: 0.85),
           ),
         ),
       );

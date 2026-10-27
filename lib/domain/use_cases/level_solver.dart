@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:watersort/domain/models/tube.dart';
 
@@ -16,7 +17,7 @@ class LevelSolver {
     String serializeState(List<Tube> tubes) {
       final keys = tubes.map((t) {
         if (t.isEmpty) return 'E:${t.capacity}';
-        final cStr = t.colors.map((c) => c.value.toRadixString(16)).join(',');
+        final cStr = t.colors.map((c) => c.toARGB32().toRadixString(16)).join(',');
         return '$cStr:${t.capacity}';
       }).toList()..sort();
       return keys.join('|');
@@ -27,7 +28,7 @@ class LevelSolver {
     }
 
     bool dfs(List<Tube> currentTubes, List<WaterSortMove> path) {
-      if (visited.length >= maxVisited) return false;
+      if (visited.length >= maxVisited || path.length >= 150) return false;
 
       if (isComplete(currentTubes)) {
         result = List.from(path);
@@ -59,8 +60,34 @@ class LevelSolver {
       return false;
     }
 
-    dfs(initialTubes, []);
+    try {
+      dfs(initialTubes, []);
+    } catch (_) {
+      return null;
+    }
     return result;
+  }
+
+  static List<WaterSortMove>? solveSync(List<Tube> tubes) {
+    try {
+      return LevelSolver().solve(tubes);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<List<WaterSortMove>?> solveAsync(
+    List<Tube> tubes, {
+    Duration timeout = const Duration(seconds: 4),
+  }) async {
+    try {
+      return await compute(solveSync, tubes).timeout(
+        timeout,
+        onTimeout: () => null,
+      );
+    } catch (_) {
+      return null;
+    }
   }
 
   List<WaterSortMove> _getValidMoves(List<Tube> tubes) {

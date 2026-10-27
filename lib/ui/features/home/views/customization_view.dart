@@ -371,37 +371,10 @@ class CustomizationView extends ConsumerWidget {
                   _buildLiquidColorsGrid(context, ref, state.customWaterColors),
                   _buildSectionHeader(
                     icon: Icons.auto_awesome_rounded,
-                    title: 'AUDIO & VISUALS',
+                    title: 'VISUALS',
                   ),
                   _buildCardGroup(
                     children: [
-                      _buildSettingRow(
-                        icon: state.isSoundEffectsEnabled
-                            ? Icons.volume_up_rounded
-                            : Icons.volume_off_rounded,
-                        iconColor: const Color(0xFF34D399),
-                        title: 'SOUND EFFECTS',
-                        description:
-                            'Liquid pouring sounds, tube completion chimes, and victory fanfare.',
-                        value: state.isSoundEffectsEnabled,
-                        isEnabled: !state.isInstantPouringEnabled,
-                        onTap: () => ref
-                            .read(homeViewModelProvider.notifier)
-                            .toggleSoundEffects(),
-                      ),
-                      _buildDivider(),
-                      _buildSettingRow(
-                        icon: Icons.motion_photos_off_rounded,
-                        iconColor: const Color(0xFFF87171),
-                        title: 'TURN OFF ANIMATIONS',
-                        description:
-                            'Instant gameplay mode. Disables pouring physics, ripples, waves, and all sound effects.',
-                        value: state.isInstantPouringEnabled,
-                        onTap: () => ref
-                            .read(homeViewModelProvider.notifier)
-                            .toggleInstantPouring(),
-                      ),
-                      _buildDivider(),
                       _buildSettingRow(
                         icon: Icons.blur_on_rounded,
                         iconColor: const Color(0xFF2DD4BF),
@@ -869,11 +842,11 @@ class CustomizationView extends ConsumerWidget {
       itemCount: colors.length,
       itemBuilder: (context, index) {
         final color = colors[index];
-        final isDarkText = color.computeLuminance() > 0.5;
+        final iconColor = AppColors.getIconColorForSlot(index);
         return GestureDetector(
           onTap: () {
             HapticFeedback.selectionClick();
-            _showColorPickerDialog(context, ref, index, color);
+            _showColorPickerDialog(context, ref, index, color, iconColor);
           },
           child: Container(
             decoration: BoxDecoration(
@@ -901,7 +874,7 @@ class CustomizationView extends ConsumerWidget {
                   child: Icon(
                     AppColors.getIconForSlot(index),
                     size: 16,
-                    color: isDarkText ? Colors.black87 : Colors.white,
+                    color: iconColor,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -932,8 +905,10 @@ class CustomizationView extends ConsumerWidget {
     WidgetRef ref,
     int slotIndex,
     Color initialColor,
+    Color initialIconColor,
   ) {
     Color currentColor = initialColor;
+    Color currentIconColor = initialIconColor;
     HSLColor currentHsl = HSLColor.fromColor(initialColor);
     final textController = TextEditingController(
       text: (initialColor.toARGB32() & 0xFFFFFF)
@@ -974,7 +949,6 @@ class CustomizationView extends ConsumerWidget {
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (ctx, setState) {
-            final isDarkText = currentColor.computeLuminance() > 0.5;
             return Dialog(
               insetPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
@@ -1004,7 +978,7 @@ class CustomizationView extends ConsumerWidget {
                           child: Icon(
                             AppColors.getIconForSlot(slotIndex),
                             size: 18,
-                            color: isDarkText ? Colors.black87 : Colors.white,
+                            color: currentIconColor,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -1101,6 +1075,135 @@ class CustomizationView extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(6),
                               border: Border.all(
                                 color: const Color(0xFF444455),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'ICON COLOR',
+                        style: TextStyle(
+                          fontFamily: 'BebasNeue',
+                          fontSize: 13,
+                          color: AppColors.subtext,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF101014),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFF282834)),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                setState(() {
+                                  currentIconColor = Colors.white;
+                                });
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: currentIconColor == Colors.white
+                                      ? const Color(0xFF22222E)
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: currentIconColor == Colors.white
+                                        ? AppColors.accent
+                                        : Colors.transparent,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 14,
+                                      height: 14,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'WHITE',
+                                      style: TextStyle(
+                                        fontFamily: 'BebasNeue',
+                                        fontSize: 13,
+                                        color: currentIconColor == Colors.white
+                                            ? Colors.white
+                                            : AppColors.subtext,
+                                        letterSpacing: 0.6,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                setState(() {
+                                  currentIconColor = Colors.black;
+                                });
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: currentIconColor == Colors.black
+                                      ? const Color(0xFF22222E)
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: currentIconColor == Colors.black
+                                        ? AppColors.accent
+                                        : Colors.transparent,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 14,
+                                      height: 14,
+                                      decoration: BoxDecoration(
+                                        color: Colors.black,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: const Color(0xFF555566),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'BLACK',
+                                      style: TextStyle(
+                                        fontFamily: 'BebasNeue',
+                                        fontSize: 13,
+                                        color: currentIconColor == Colors.black
+                                            ? Colors.white
+                                            : AppColors.subtext,
+                                        letterSpacing: 0.6,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -1267,6 +1370,9 @@ class CustomizationView extends ConsumerWidget {
                                     setState(() {
                                       currentColor = defaultColor;
                                       currentHsl = HSLColor.fromColor(defaultColor);
+                                      currentIconColor = defaultColor.computeLuminance() > 0.5
+                                          ? Colors.black
+                                          : Colors.white;
                                       textController.text =
                                           (defaultColor.toARGB32() & 0xFFFFFF)
                                               .toRadixString(16)
@@ -1346,6 +1452,7 @@ class CustomizationView extends ConsumerWidget {
                                             .setWaterColor(
                                               slotIndex,
                                               currentColor,
+                                              currentIconColor,
                                             );
                                         Navigator.pop(dialogContext);
                                       },

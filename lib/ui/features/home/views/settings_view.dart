@@ -361,6 +361,40 @@ class SettingsView extends ConsumerWidget {
                     ],
                   ),
                   _buildSectionHeader(
+                    icon: Icons.volume_up_rounded,
+                    title: 'AUDIO & ANIMATIONS',
+                  ),
+                  _buildCardGroup(
+                    children: [
+                      _buildSettingRow(
+                        icon: state.isSoundEffectsEnabled
+                            ? Icons.volume_up_rounded
+                            : Icons.volume_off_rounded,
+                        iconColor: const Color(0xFF34D399),
+                        title: 'SOUND EFFECTS',
+                        description:
+                            'Liquid pouring sounds, tube completion chimes, and victory fanfare.',
+                        value: state.isSoundEffectsEnabled,
+                        isEnabled: !state.isInstantPouringEnabled,
+                        onTap: () => ref
+                            .read(homeViewModelProvider.notifier)
+                            .toggleSoundEffects(),
+                      ),
+                      _buildDivider(),
+                      _buildSettingRow(
+                        icon: Icons.motion_photos_off_rounded,
+                        iconColor: const Color(0xFFF87171),
+                        title: 'TURN OFF ANIMATIONS',
+                        description:
+                            'Instant gameplay mode. Disables pouring physics, ripples, waves, and all sound effects.',
+                        value: state.isInstantPouringEnabled,
+                        onTap: () => ref
+                            .read(homeViewModelProvider.notifier)
+                            .toggleInstantPouring(),
+                      ),
+                    ],
+                  ),
+                  _buildSectionHeader(
                     icon: Icons.backup_rounded,
                     title: 'BACKUP & RESTORE',
                   ),
