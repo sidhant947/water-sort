@@ -195,6 +195,20 @@ class HiveService {
     await _settingsBox.put('${profileId}_tube_size', size);
   }
 
+  String? getLocale() {
+    final profileId = _getActiveProfileIdSync();
+    return _settingsBox.get('${profileId}_locale')?.toString();
+  }
+
+  Future<void> setLocale(String? localeCode) async {
+    final profileId = _getActiveProfileIdSync();
+    if (localeCode == null) {
+      await _settingsBox.delete('${profileId}_locale');
+    } else {
+      await _settingsBox.put('${profileId}_locale', localeCode);
+    }
+  }
+
   Map<dynamic, dynamic>? getSavedLevelState() {
     final profileId = _getActiveProfileIdSync();
     final raw = _settingsBox.get('${profileId}_saved_level_state');
@@ -343,6 +357,7 @@ class HiveService {
           'tube_size': _settingsBox.get('${profile.id}_tube_size'),
           'theme_pack': _settingsBox.get('${profile.id}_theme_pack'),
           'themes_unlocked': _settingsBox.get('${profile.id}_themes_unlocked'),
+          'locale': _settingsBox.get('${profile.id}_locale'),
         },
       });
     }

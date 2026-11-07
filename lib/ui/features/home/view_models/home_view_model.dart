@@ -31,6 +31,7 @@ class HomeViewModelState {
     this.customBackgroundImagePath,
     this.customWaterColors = AppColors.defaultWaterColors,
     this.customWaterIconColors = const [],
+    this.localeCode,
   });
 
   final UserProgress? progress;
@@ -52,6 +53,7 @@ class HomeViewModelState {
   final String? customBackgroundImagePath;
   final List<Color> customWaterColors;
   final List<Color> customWaterIconColors;
+  final String? localeCode;
 
   HomeViewModelState copyWith({
     UserProgress? progress,
@@ -73,6 +75,7 @@ class HomeViewModelState {
     String? Function()? customBackgroundImagePath,
     List<Color>? customWaterColors,
     List<Color>? customWaterIconColors,
+    String? Function()? localeCode,
   }) {
     return HomeViewModelState(
       progress: progress ?? this.progress,
@@ -102,13 +105,16 @@ class HomeViewModelState {
       customWaterColors: customWaterColors ?? this.customWaterColors,
       customWaterIconColors:
           customWaterIconColors ?? this.customWaterIconColors,
+      localeCode: localeCode != null ? localeCode() : this.localeCode,
     );
   }
 }
 
 class HomeViewModel extends StateNotifier<HomeViewModelState> {
   HomeViewModel({required this._progressRepository})
-      : super(const HomeViewModelState()) {
+      : super(HomeViewModelState(
+          localeCode: _progressRepository.getLocale(),
+        )) {
     _progressSubscription = _progressRepository.onProgressChanged.listen((progress) {
       final levelStars = _progressRepository.getAllLevelStars();
       state = state.copyWith(
@@ -146,6 +152,7 @@ class HomeViewModel extends StateNotifier<HomeViewModelState> {
       final themeName = _progressRepository.getThemePack();
       final areThemesUnlocked = _progressRepository.areThemesUnlocked();
       final customBgPath = _progressRepository.getCustomBackgroundImagePath();
+      final localeCode = _progressRepository.getLocale();
       final theme = ThemePack.values.firstWhere(
         (t) => t.name == themeName,
         orElse: () => ThemePack.midnight,
@@ -174,6 +181,7 @@ class HomeViewModel extends StateNotifier<HomeViewModelState> {
         customBackgroundImagePath: () => customBgPath,
         customWaterColors: waterColors,
         customWaterIconColors: waterIconColors,
+        localeCode: () => localeCode,
         isLoading: false,
       );
     } catch (e) {
@@ -265,6 +273,11 @@ class HomeViewModel extends StateNotifier<HomeViewModelState> {
   Future<void> setTubeSize(String size) async {
     await _progressRepository.setTubeSize(size);
     state = state.copyWith(tubeSize: size);
+  }
+
+  Future<void> setLocale(String? localeCode) async {
+    state = state.copyWith(localeCode: () => localeCode);
+    await _progressRepository.setLocale(localeCode);
   }
 
   Future<void> setThemePack(ThemePack theme) async {

@@ -139,6 +139,14 @@ class ProgressRepository {
     await _hiveService.setTubeSize(size);
   }
 
+  String? getLocale() {
+    return _hiveService.getLocale();
+  }
+
+  Future<void> setLocale(String? localeCode) async {
+    await _hiveService.setLocale(localeCode);
+  }
+
   Future<List<UserProfile>> getProfiles() async {
     return _hiveService.getProfiles();
   }

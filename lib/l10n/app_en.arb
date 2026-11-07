@@ -231,5 +231,15 @@
         "type": "String"
       }
     }
-  }
+  },
+  "sectionLanguage": "LANGUAGE",
+  "settingLanguageTitle": "LANGUAGE",
+  "settingLanguageDesc": "Choose your preferred app language or match system.",
+  "localeSystem": "SYSTEM",
+  "localeSystemDesc": "Follow device language",
+  "chooseLanguageTitle": "CHOOSE LANGUAGE",
+  "localeEn": "ENGLISH",
+  "localeDe": "DEUTSCH",
+  "followTwitter": "FOLLOW ME ON TWITTER",
+  "followMastodon": "FOLLOW ME ON MASTODON"
 }

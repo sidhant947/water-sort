@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_de.dart';
 import 'app_localizations_en.dart';
 
 // ignore_for_file: type=lint
@@ -92,7 +93,10 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('de'),
+    Locale('en'),
+  ];
 
   /// No description provided for @appTitle.
   ///
@@ -1101,6 +1105,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invalid hex color: {item}'**
   String invalidHexColor(String item);
+
+  /// No description provided for @sectionLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'LANGUAGE'**
+  String get sectionLanguage;
+
+  /// No description provided for @settingLanguageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'LANGUAGE'**
+  String get settingLanguageTitle;
+
+  /// No description provided for @settingLanguageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your preferred app language or match system.'**
+  String get settingLanguageDesc;
+
+  /// No description provided for @localeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'SYSTEM'**
+  String get localeSystem;
+
+  /// No description provided for @localeSystemDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow device language'**
+  String get localeSystemDesc;
+
+  /// No description provided for @chooseLanguageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'CHOOSE LANGUAGE'**
+  String get chooseLanguageTitle;
+
+  /// No description provided for @localeEn.
+  ///
+  /// In en, this message translates to:
+  /// **'ENGLISH'**
+  String get localeEn;
+
+  /// No description provided for @localeDe.
+  ///
+  /// In en, this message translates to:
+  /// **'DEUTSCH'**
+  String get localeDe;
+
+  /// No description provided for @followTwitter.
+  ///
+  /// In en, this message translates to:
+  /// **'FOLLOW ME ON TWITTER'**
+  String get followTwitter;
+
+  /// No description provided for @followMastodon.
+  ///
+  /// In en, this message translates to:
+  /// **'FOLLOW ME ON MASTODON'**
+  String get followMastodon;
 }
 
 class _AppLocalizationsDelegate
@@ -1114,7 +1178,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en'].contains(locale.languageCode);
+      <String>['de', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -1123,6 +1187,8 @@ class _AppLocalizationsDelegate
 AppLocalizations lookupAppLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'de':
+      return AppLocalizationsDe();
     case 'en':
       return AppLocalizationsEn();
   }

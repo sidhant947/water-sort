@@ -551,4 +551,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String invalidHexColor(String item) {
     return 'Invalid hex color: $item';
   }
+
+  @override
+  String get sectionLanguage => 'LANGUAGE';
+
+  @override
+  String get settingLanguageTitle => 'LANGUAGE';
+
+  @override
+  String get settingLanguageDesc =>
+      'Choose your preferred app language or match system.';
+
+  @override
+  String get localeSystem => 'SYSTEM';
+
+  @override
+  String get localeSystemDesc => 'Follow device language';
+
+  @override
+  String get chooseLanguageTitle => 'CHOOSE LANGUAGE';
+
+  @override
+  String get localeEn => 'ENGLISH';
+
+  @override
+  String get localeDe => 'DEUTSCH';
+
+  @override
+  String get followTwitter => 'FOLLOW ME ON TWITTER';
+
+  @override
+  String get followMastodon => 'FOLLOW ME ON MASTODON';
 }

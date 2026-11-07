@@ -80,9 +80,7 @@ class SettingsView extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              success
-                  ? l10n.backupImportedSuccess
-                  : l10n.backupImportInvalid,
+              success ? l10n.backupImportedSuccess : l10n.backupImportInvalid,
             ),
             duration: const Duration(seconds: 2),
           ),
@@ -297,6 +295,21 @@ class SettingsView extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
                 children: [
+                  const SizedBox(height: 6),
+                  _buildSocialButton(
+                    icon: Icons.alternate_email_rounded,
+                    iconColor: const Color(0xFF38BDF8),
+                    text: l10n.followTwitter,
+                    url: 'https://x.com/vgbhuop',
+                  ),
+                  const SizedBox(height: 8),
+                  _buildSocialButton(
+                    icon: Icons.tag_rounded,
+                    iconColor: const Color(0xFF818CF8),
+                    text: l10n.followMastodon,
+                    url: 'https://mastodon.social/@sidhant947',
+                  ),
+                  const SizedBox(height: 8),
                   _buildSectionHeader(
                     icon: Icons.sports_esports_rounded,
                     title: l10n.sectionGameplayRules,
@@ -333,8 +346,8 @@ class SettingsView extends ConsumerWidget {
                           description: l10n.settingCheckButtonDesc,
                           value: state.isCheckButtonEnabled,
                           onTap: () => ref
-                                .read(homeViewModelProvider.notifier)
-                                .toggleCheckButton(),
+                              .read(homeViewModelProvider.notifier)
+                              .toggleCheckButton(),
                         ),
                       ],
                       _buildDivider(),
@@ -394,6 +407,59 @@ class SettingsView extends ConsumerWidget {
                     ],
                   ),
                   _buildSectionHeader(
+                    icon: Icons.language_rounded,
+                    title: l10n.sectionLanguage,
+                  ),
+                  _buildCardGroup(
+                    children: [
+                      _buildActionRow(
+                        icon: Icons.language_rounded,
+                        iconColor: const Color(0xFF38BDF8),
+                        title: l10n.settingLanguageTitle,
+                        description: _getLocaleDisplayName(
+                          context,
+                          state.localeCode,
+                        ),
+                        onTap: () => _showLanguageBottomSheet(context, ref),
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF191922),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: const Color(0xFF2B2B38),
+                              width: 1.0,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                _getLocaleBadge(context, state.localeCode),
+                                style: TextStyle(
+                                  fontFamily: 'BebasNeue',
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.accent,
+                                  letterSpacing: 0.8,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                color: Color(0xFF7E7E90),
+                                size: 16,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  _buildSectionHeader(
                     icon: Icons.backup_rounded,
                     title: l10n.sectionBackupRestore,
                   ),
@@ -440,20 +506,6 @@ class SettingsView extends ConsumerWidget {
                         onTap: () => _launchExternalUrl(
                           'https://github.com/sidhant947/water-sort',
                         ),
-                        trailing: const Icon(
-                          Icons.open_in_new_rounded,
-                          color: Color(0xFF7E7E90),
-                          size: 16,
-                        ),
-                      ),
-                      _buildDivider(),
-                      _buildActionRow(
-                        icon: Icons.coffee_rounded,
-                        iconColor: const Color(0xFFF59E0B),
-                        title: l10n.actionBuyCoffeeTitle,
-                        description: l10n.actionBuyCoffeeDesc,
-                        onTap: () =>
-                            _launchExternalUrl('https://ko-fi.com/sidhant947'),
                         trailing: const Icon(
                           Icons.open_in_new_rounded,
                           color: Color(0xFF7E7E90),
@@ -683,6 +735,316 @@ class SettingsView extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildSocialButton({
+    required IconData icon,
+    required Color iconColor,
+    required String text,
+    required String url,
+  }) {
+    return InkWell(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        _launchExternalUrl(url);
+      },
+      borderRadius: BorderRadius.circular(12),
+      splashColor: iconColor.withValues(alpha: 0.12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF262634), width: 1.0),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(9),
+                border: Border.all(
+                  color: iconColor.withValues(alpha: 0.35),
+                  width: 1.0,
+                ),
+              ),
+              child: Icon(icon, color: iconColor, size: 16),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                text,
+                style: TextStyle(
+                  fontFamily: 'BebasNeue',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.headingWhite,
+                  letterSpacing: 0.8,
+                ),
+              ),
+            ),
+            const Icon(
+              Icons.open_in_new_rounded,
+              color: Color(0xFF7E7E90),
+              size: 15,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLanguageBottomSheet(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final currentLocale = ref.read(homeViewModelProvider).localeCode;
+
+    final List<String?> localeOptions = [
+      null,
+      ...AppLocalizations.supportedLocales.map((l) => l.languageCode),
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF141418),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        side: BorderSide(color: Color(0xFF242430), width: 1.0),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF383844),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  l10n.chooseLanguageTitle,
+                  style: TextStyle(
+                    fontFamily: 'BebasNeue',
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.headingWhite,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: localeOptions.length,
+                    separatorBuilder: (_, _) => const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFF1E1E26),
+                      indent: 12,
+                      endIndent: 12,
+                    ),
+                    itemBuilder: (context, index) {
+                      final code = localeOptions[index];
+                      final isSelected = currentLocale == code;
+                      final title = _getLocaleOptionTitle(context, code);
+                      final subtitle = _getLocaleOptionSubtitle(context, code);
+
+                      return InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          Navigator.pop(sheetContext);
+                          ref
+                              .read(homeViewModelProvider.notifier)
+                              .setLocale(code);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 14,
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? AppColors.accent.withValues(alpha: 0.16)
+                                      : const Color(0xFF1F1F26),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? AppColors.accent.withValues(
+                                            alpha: 0.35,
+                                          )
+                                        : const Color(0xFF2B2B36),
+                                    width: 1.0,
+                                  ),
+                                ),
+                                child: Icon(
+                                  code == null
+                                      ? Icons.brightness_auto_rounded
+                                      : Icons.translate_rounded,
+                                  color: isSelected
+                                      ? AppColors.accent
+                                      : AppColors.subtext,
+                                  size: 18,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      title,
+                                      style: TextStyle(
+                                        fontFamily: 'BebasNeue',
+                                        fontSize: 16,
+                                        fontWeight: isSelected
+                                            ? FontWeight.w900
+                                            : FontWeight.w500,
+                                        color: isSelected
+                                            ? AppColors.headingWhite
+                                            : AppColors.headingWhite.withValues(
+                                                alpha: 0.85,
+                                              ),
+                                        letterSpacing: 0.8,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      subtitle,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: isSelected
+                                            ? AppColors.accent
+                                            : AppColors.subtext,
+                                        height: 1.2,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (isSelected)
+                                Container(
+                                  width: 22,
+                                  height: 22,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.accent.withValues(
+                                      alpha: 0.2,
+                                    ),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: AppColors.accent,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.check_rounded,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  String _getLocaleDisplayName(BuildContext context, String? code) {
+    final l10n = AppLocalizations.of(context)!;
+    if (code == null) {
+      return l10n.localeSystemDesc;
+    }
+    return _getLocaleNativeName(code);
+  }
+
+  String _getLocaleBadge(BuildContext context, String? code) {
+    final l10n = AppLocalizations.of(context)!;
+    if (code == null) {
+      return l10n.localeSystem;
+    }
+    switch (code) {
+      case 'en':
+        return l10n.localeEn;
+      case 'de':
+        return l10n.localeDe;
+      default:
+        return code.toUpperCase();
+    }
+  }
+
+  String _getLocaleOptionTitle(BuildContext context, String? code) {
+    final l10n = AppLocalizations.of(context)!;
+    if (code == null) {
+      return l10n.localeSystem;
+    }
+    switch (code) {
+      case 'en':
+        return l10n.localeEn;
+      case 'de':
+        return l10n.localeDe;
+      default:
+        return code.toUpperCase();
+    }
+  }
+
+  String _getLocaleOptionSubtitle(BuildContext context, String? code) {
+    final l10n = AppLocalizations.of(context)!;
+    if (code == null) {
+      return l10n.localeSystemDesc;
+    }
+    return _getLocaleNativeName(code);
+  }
+
+  String _getLocaleNativeName(String code) {
+    switch (code) {
+      case 'en':
+        return 'English';
+      case 'de':
+        return 'Deutsch';
+      case 'es':
+        return 'Español';
+      case 'fr':
+        return 'Français';
+      case 'it':
+        return 'Italiano';
+      case 'ja':
+        return '日本語';
+      case 'ko':
+        return '한국어';
+      case 'pt':
+        return 'Português';
+      case 'ru':
+        return 'Русский';
+      case 'zh':
+        return '中文';
+      case 'ar':
+        return 'العربية';
+      case 'hi':
+        return 'हिन्दी';
+      default:
+        return code.toUpperCase();
+    }
   }
 }
 

@@ -28,12 +28,17 @@ void main() async {
   );
 }
 
-class WaterSortApp extends StatelessWidget {
+class WaterSortApp extends ConsumerWidget {
   const WaterSortApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final localeCode = ref.watch(
+      homeViewModelProvider.select((state) => state.localeCode),
+    );
+
     return MaterialApp(
+      locale: localeCode != null ? Locale(localeCode) : null,
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
