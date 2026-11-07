@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:watersort/l10n/app_localizations.dart';
 import 'package:watersort/ui/core/theme/app_colors.dart';
 import 'package:watersort/ui/core/widgets/tangible_button.dart';
 import 'package:watersort/ui/features/game/views/game_view.dart';
@@ -14,11 +15,11 @@ class MultiplayerView extends StatefulWidget {
 
 class _MultiplayerViewState extends State<MultiplayerView> {
   static const _difficulties = [
-    {'label': 'EASY', 'value': 'Easy', 'cap': 4},
-    {'label': 'MEDIUM', 'value': 'Medium', 'cap': 4},
-    {'label': 'HARD', 'value': 'Hard', 'cap': 5},
-    {'label': 'EXPERT', 'value': 'Super Hard', 'cap': 5},
-    {'label': 'EXTREME', 'value': 'Super Duper Hard', 'cap': 6},
+    {'value': 'Easy', 'cap': 4},
+    {'value': 'Medium', 'cap': 4},
+    {'value': 'Hard', 'cap': 5},
+    {'value': 'Super Hard', 'cap': 5},
+    {'value': 'Super Duper Hard', 'cap': 6},
   ];
 
   String _selectedDifficulty = 'Easy';
@@ -89,8 +90,27 @@ class _MultiplayerViewState extends State<MultiplayerView> {
     );
   }
 
+  String _difficultyLabel(BuildContext context, String value) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (value) {
+      case 'Easy':
+        return l10n.diffEasy;
+      case 'Medium':
+        return l10n.diffMedium;
+      case 'Hard':
+        return l10n.diffHard;
+      case 'Super Hard':
+        return l10n.diffExpert;
+      case 'Super Duper Hard':
+        return l10n.diffExtreme;
+      default:
+        return value;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final code = _encodeRoom(_selectedDifficulty, _seed);
 
     return Scaffold(
@@ -123,7 +143,7 @@ class _MultiplayerViewState extends State<MultiplayerView> {
                   ),
                   const SizedBox(width: 16),
                   Text(
-                    'MULTIPLAYER',
+                    l10n.multiplayerTitle,
                     style: TextStyle(
                       fontFamily: 'BebasNeue',
                       fontSize: 28,
@@ -142,7 +162,7 @@ class _MultiplayerViewState extends State<MultiplayerView> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'CREATE ROOM',
+                      l10n.createRoom,
                       style: TextStyle(
                         fontFamily: 'BebasNeue',
                         fontSize: 18,
@@ -155,10 +175,11 @@ class _MultiplayerViewState extends State<MultiplayerView> {
                       spacing: 8,
                       runSpacing: 8,
                       children: _difficulties.map((diff) {
-                        final isSelected = _selectedDifficulty == diff['value'];
+                        final diffValue = diff['value'] as String;
+                        final isSelected = _selectedDifficulty == diffValue;
                         return ChoiceChip(
                           label: Text(
-                            diff['label'] as String,
+                            _difficultyLabel(context, diffValue),
                             style: TextStyle(
                               fontFamily: 'BebasNeue',
                               fontSize: 14,
@@ -174,7 +195,7 @@ class _MultiplayerViewState extends State<MultiplayerView> {
                           ),
                           onSelected: (_) {
                             setState(() {
-                              _selectedDifficulty = diff['value'] as String;
+                              _selectedDifficulty = diffValue;
                             });
                           },
                         );
@@ -195,7 +216,7 @@ class _MultiplayerViewState extends State<MultiplayerView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'ROOM CODE',
+                                  l10n.roomCode,
                                   style: TextStyle(
                                     fontFamily: 'BebasNeue',
                                     fontSize: 12,
@@ -225,9 +246,9 @@ class _MultiplayerViewState extends State<MultiplayerView> {
                             onPressed: () {
                               Clipboard.setData(ClipboardData(text: code));
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Room code copied to clipboard'),
-                                  duration: Duration(seconds: 2),
+                                SnackBar(
+                                  content: Text(l10n.roomCodeCopied),
+                                  duration: const Duration(seconds: 2),
                                 ),
                               );
                             },
@@ -237,14 +258,14 @@ class _MultiplayerViewState extends State<MultiplayerView> {
                     ),
                     const SizedBox(height: 14),
                     TangibleButton(
-                      text: 'PLAY THIS PUZZLE',
+                      text: l10n.playThisPuzzle,
                       onPressed: () => _launchGame(_selectedDifficulty, _seed),
                     ),
                     const SizedBox(height: 28),
                     Divider(color: const Color(0xFF262626)),
                     const SizedBox(height: 20),
                     Text(
-                      'JOIN ROOM',
+                      l10n.joinRoom,
                       style: TextStyle(
                         fontFamily: 'BebasNeue',
                         fontSize: 18,
@@ -262,7 +283,7 @@ class _MultiplayerViewState extends State<MultiplayerView> {
                         letterSpacing: 1.5,
                       ),
                       decoration: InputDecoration(
-                        hintText: 'ENTER CODE (E.G. $code)',
+                        hintText: l10n.enterCodeHint(code),
                         hintStyle: TextStyle(
                           fontFamily: 'BebasNeue',
                           color: AppColors.subtext.withOpacity(0.5),
@@ -296,15 +317,15 @@ class _MultiplayerViewState extends State<MultiplayerView> {
                     ),
                     const SizedBox(height: 14),
                     TangibleButton(
-                      text: 'JOIN PUZZLE',
+                      text: l10n.joinPuzzle,
                       isSecondary: true,
                       onPressed: () {
                         final decoded = _decodeRoom(_codeController.text);
                         if (decoded == null) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Invalid room code. Please check and try again.'),
-                              duration: Duration(seconds: 2),
+                            SnackBar(
+                              content: Text(l10n.invalidRoomCode),
+                              duration: const Duration(seconds: 2),
                             ),
                           );
                           return;

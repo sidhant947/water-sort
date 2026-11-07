@@ -5,11 +5,52 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:watersort/l10n/app_localizations.dart';
 import 'package:watersort/ui/core/theme/app_colors.dart';
 import 'package:watersort/ui/providers.dart';
 
 class CustomizationView extends ConsumerWidget {
   const CustomizationView({super.key});
+
+  static String _themeName(BuildContext context, ThemePack theme) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (theme) {
+      case ThemePack.midnight:
+        return l10n.themeMidnight;
+      case ThemePack.cyberpunk:
+        return l10n.themeCyberpunk;
+      case ThemePack.forest:
+        return l10n.themeForest;
+      case ThemePack.space:
+        return l10n.themeSpace;
+      case ThemePack.retro:
+        return l10n.themeRetro;
+      case ThemePack.sunset:
+        return l10n.themeSunset;
+      case ThemePack.neon:
+        return l10n.themeNeon;
+      case ThemePack.ocean:
+        return l10n.themeOcean;
+      case ThemePack.volcano:
+        return l10n.themeVolcano;
+      case ThemePack.aurora:
+        return l10n.themeAurora;
+      case ThemePack.lavender:
+        return l10n.themeLavender;
+      case ThemePack.desert:
+        return l10n.themeDesert;
+      case ThemePack.glitch:
+        return l10n.themeGlitch;
+      case ThemePack.sakura:
+        return l10n.themeSakura;
+      case ThemePack.monochrome:
+        return l10n.themeMonochrome;
+      case ThemePack.aquamarine:
+        return l10n.themeAquamarine;
+      case ThemePack.solar:
+        return l10n.themeSolar;
+    }
+  }
 
   static const Map<ThemePack, _ThemeSpec> _themeSpecs = {
     ThemePack.midnight: _ThemeSpec(
@@ -104,6 +145,7 @@ class CustomizationView extends ConsumerWidget {
     final state = ref.watch(homeViewModelProvider);
     final activeSpec =
         _themeSpecs[state.activeTheme] ?? _themeSpecs[ThemePack.midnight]!;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -143,7 +185,7 @@ class CustomizationView extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'CUSTOMIZATION',
+                        l10n.customizationTitle,
                         style: TextStyle(
                           fontFamily: 'BebasNeue',
                           fontSize: 26,
@@ -173,7 +215,7 @@ class CustomizationView extends ConsumerWidget {
                 children: [
                   _buildSectionHeader(
                     icon: Icons.palette_rounded,
-                    title: 'THEME PALETTES',
+                    title: l10n.themePalettesTitle,
                     trailing: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
@@ -200,7 +242,7 @@ class CustomizationView extends ConsumerWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            activeSpec.name,
+                            _themeName(context, state.activeTheme),
                             style: TextStyle(
                               fontFamily: 'BebasNeue',
                               fontSize: 13,
@@ -268,7 +310,7 @@ class CustomizationView extends ConsumerWidget {
                   ),
                   _buildSectionHeader(
                     icon: Icons.water_drop_rounded,
-                    title: 'CUSTOMIZE LIQUID COLORS',
+                    title: l10n.customizeLiquidColorsTitle,
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -304,7 +346,7 @@ class CustomizationView extends ConsumerWidget {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'JSON',
+                                  l10n.jsonUpper,
                                   style: TextStyle(
                                     fontFamily: 'BebasNeue',
                                     fontSize: 12,
@@ -324,9 +366,9 @@ class CustomizationView extends ConsumerWidget {
                                 .read(homeViewModelProvider.notifier)
                                 .resetWaterColors();
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Liquid colors reset to default.'),
-                                duration: Duration(seconds: 2),
+                              SnackBar(
+                                content: Text(l10n.liquidColorsResetSuccess),
+                                duration: const Duration(seconds: 2),
                               ),
                             );
                           },
@@ -353,7 +395,7 @@ class CustomizationView extends ConsumerWidget {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'RESET ALL',
+                                  l10n.resetAllUpper,
                                   style: TextStyle(
                                     fontFamily: 'BebasNeue',
                                     fontSize: 12,
@@ -371,16 +413,15 @@ class CustomizationView extends ConsumerWidget {
                   _buildLiquidColorsGrid(context, ref, state.customWaterColors),
                   _buildSectionHeader(
                     icon: Icons.auto_awesome_rounded,
-                    title: 'VISUALS',
+                    title: l10n.visualsTitle,
                   ),
                   _buildCardGroup(
                     children: [
                       _buildSettingRow(
                         icon: Icons.blur_on_rounded,
                         iconColor: const Color(0xFF2DD4BF),
-                        title: 'FROST SOLVED TUBES',
-                        description:
-                            'Apply an icy glass frosting effect to completed tubes to easily focus on active ones.',
+                        title: l10n.frostSolvedTubesTitle,
+                        description: l10n.frostSolvedTubesDesc,
                         value: state.isBlurSolvedTubesEnabled,
                         onTap: () => ref
                             .read(homeViewModelProvider.notifier)
@@ -411,11 +452,12 @@ class CustomizationView extends ConsumerWidget {
     WidgetRef ref,
     String currentSize,
   ) {
-    const options = [
-      {'key': 'slim', 'label': 'SLIM'},
-      {'key': 'medium', 'label': 'MEDIUM'},
-      {'key': 'wide', 'label': 'WIDE'},
-      {'key': 'adaptive', 'label': 'ADAPTIVE'},
+    final l10n = AppLocalizations.of(context)!;
+    final options = [
+      {'key': 'slim', 'label': l10n.tubeThicknessSlim},
+      {'key': 'medium', 'label': l10n.tubeThicknessMedium},
+      {'key': 'wide', 'label': l10n.tubeThicknessWide},
+      {'key': 'adaptive', 'label': l10n.tubeThicknessAdaptive},
     ];
 
     return Padding(
@@ -448,7 +490,7 @@ class CustomizationView extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'TUBE THICKNESS',
+                      l10n.tubeThicknessTitle,
                       style: TextStyle(
                         fontFamily: 'BebasNeue',
                         fontSize: 17,
@@ -459,7 +501,7 @@ class CustomizationView extends ConsumerWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Choose how wide or thin test tubes look on screen.',
+                      l10n.tubeThicknessDesc,
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.subtext,
@@ -669,6 +711,7 @@ class CustomizationView extends ConsumerWidget {
     String? customBgPath,
   ) {
     final bool hasBg = customBgPath != null && File(customBgPath).existsSync();
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -700,7 +743,7 @@ class CustomizationView extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'CUSTOM BACKGROUND IMAGE',
+                      l10n.customBackgroundTitle,
                       style: TextStyle(
                         fontFamily: 'BebasNeue',
                         fontSize: 17,
@@ -711,7 +754,7 @@ class CustomizationView extends ConsumerWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Set custom image from your deviice for gameplay background.',
+                      l10n.customBackgroundDesc,
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.subtext,
@@ -761,9 +804,9 @@ class CustomizationView extends ConsumerWidget {
                           .setCustomBackgroundImage(pickedFile.path);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
+                          SnackBar(
                             content: Text(
-                              'Custom background image set successfully.',
+                              l10n.customBackgroundSetSuccess,
                             ),
                           ),
                         );
@@ -776,7 +819,7 @@ class CustomizationView extends ConsumerWidget {
                     color: Colors.white,
                   ),
                   label: Text(
-                    hasBg ? 'CHANGE IMAGE' : 'SET BACKGROUND IMAGE',
+                    hasBg ? l10n.changeImage : l10n.setBackgroundImage,
                     style: const TextStyle(
                       fontFamily: 'BebasNeue',
                       fontSize: 14,
@@ -805,8 +848,8 @@ class CustomizationView extends ConsumerWidget {
                         .removeCustomBackgroundImage();
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Custom background image removed.'),
+                        SnackBar(
+                          content: Text(l10n.customBackgroundRemovedSuccess),
                         ),
                       );
                     }
@@ -907,6 +950,7 @@ class CustomizationView extends ConsumerWidget {
     Color initialColor,
     Color initialIconColor,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     Color currentColor = initialColor;
     Color currentIconColor = initialIconColor;
     HSLColor currentHsl = HSLColor.fromColor(initialColor);
@@ -987,7 +1031,7 @@ class CustomizationView extends ConsumerWidget {
                             fit: BoxFit.scaleDown,
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              'CUSTOMIZE COLOR',
+                              l10n.customizeColorTitle,
                               style: TextStyle(
                                 fontFamily: 'BebasNeue',
                                 fontSize: 22,
@@ -1016,7 +1060,7 @@ class CustomizationView extends ConsumerWidget {
                           FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              'HEX #',
+                              l10n.hexNumber,
                               style: TextStyle(
                                 fontFamily: 'BebasNeue',
                                 fontSize: 16,
@@ -1086,7 +1130,7 @@ class CustomizationView extends ConsumerWidget {
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'ICON COLOR',
+                        l10n.iconColorTitle,
                         style: TextStyle(
                           fontFamily: 'BebasNeue',
                           fontSize: 13,
@@ -1139,7 +1183,7 @@ class CustomizationView extends ConsumerWidget {
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      'WHITE',
+                                      l10n.whiteUpper,
                                       style: TextStyle(
                                         fontFamily: 'BebasNeue',
                                         fontSize: 13,
@@ -1192,7 +1236,7 @@ class CustomizationView extends ConsumerWidget {
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      'BLACK',
+                                      l10n.blackUpper,
                                       style: TextStyle(
                                         fontFamily: 'BebasNeue',
                                         fontSize: 13,
@@ -1215,7 +1259,7 @@ class CustomizationView extends ConsumerWidget {
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'HSL ADJUSTMENT',
+                        l10n.hslAdjustmentTitle,
                         style: TextStyle(
                           fontFamily: 'BebasNeue',
                           fontSize: 13,
@@ -1281,7 +1325,7 @@ class CustomizationView extends ConsumerWidget {
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'PALETTE PRESETS',
+                        l10n.palettePresetsTitle,
                         style: TextStyle(
                           fontFamily: 'BebasNeue',
                           fontSize: 13,
@@ -1381,7 +1425,7 @@ class CustomizationView extends ConsumerWidget {
                                     });
                                   },
                                   child: Text(
-                                    'DEFAULT',
+                                    l10n.defaultUpper,
                                     style: TextStyle(
                                       fontFamily: 'BebasNeue',
                                       fontSize: 14,
@@ -1415,7 +1459,7 @@ class CustomizationView extends ConsumerWidget {
                                       onPressed: () =>
                                           Navigator.pop(dialogContext),
                                       child: Text(
-                                        'CANCEL',
+                                        l10n.cancelUpper,
                                         style: TextStyle(
                                           fontFamily: 'BebasNeue',
                                           fontSize: 14,
@@ -1456,9 +1500,9 @@ class CustomizationView extends ConsumerWidget {
                                             );
                                         Navigator.pop(dialogContext);
                                       },
-                                      child: const Text(
-                                        'APPLY',
-                                        style: TextStyle(
+                                      child: Text(
+                                        l10n.applyUpper,
+                                        style: const TextStyle(
                                           fontFamily: 'BebasNeue',
                                           fontSize: 14,
                                           fontWeight: FontWeight.w900,
@@ -1545,6 +1589,7 @@ class CustomizationView extends ConsumerWidget {
     WidgetRef ref,
     List<Color> currentColors,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final hexList = currentColors
         .map(
           (c) =>
@@ -1595,7 +1640,7 @@ class CustomizationView extends ConsumerWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'THEME JSON',
+                            l10n.themeJsonTitle,
                             style: TextStyle(
                               fontFamily: 'BebasNeue',
                               fontSize: 22,
@@ -1617,11 +1662,11 @@ class CustomizationView extends ConsumerWidget {
                             );
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
+                                SnackBar(
                                   content: Text(
-                                    'Theme JSON copied to clipboard.',
+                                    l10n.themeJsonCopiedSuccess,
                                   ),
-                                  duration: Duration(seconds: 2),
+                                  duration: const Duration(seconds: 2),
                                 ),
                               );
                             }
@@ -1649,7 +1694,7 @@ class CustomizationView extends ConsumerWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Copy, paste or edit 16 liquid colors formatted as a JSON array of hex codes.',
+                      l10n.themeJsonDesc,
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.subtext,
@@ -1716,7 +1761,7 @@ class CustomizationView extends ConsumerWidget {
                           ),
                           onPressed: () => Navigator.pop(dialogContext),
                           child: Text(
-                            'CANCEL',
+                            l10n.cancelUpper,
                             style: TextStyle(
                               fontFamily: 'BebasNeue',
                               fontSize: 14,
@@ -1747,7 +1792,7 @@ class CustomizationView extends ConsumerWidget {
                               if (decoded is! List) {
                                 setState(() {
                                   errorMessage =
-                                      'JSON must be a list of 16 hex colors.';
+                                      l10n.jsonMustBe16Hex;
                                 });
                                 return;
                               }
@@ -1755,7 +1800,7 @@ class CustomizationView extends ConsumerWidget {
                                   AppColors.defaultWaterColors.length) {
                                 setState(() {
                                   errorMessage =
-                                      'Must contain exactly ${AppColors.defaultWaterColors.length} colors (found ${decoded.length}).';
+                                      l10n.mustContainExactColors(AppColors.defaultWaterColors.length, decoded.length);
                                 });
                                 return;
                               }
@@ -1764,7 +1809,7 @@ class CustomizationView extends ConsumerWidget {
                                 if (item is! String) {
                                   setState(() {
                                     errorMessage =
-                                        'Every color item must be a hex string.';
+                                        l10n.jsonItemMustBeHex;
                                   });
                                   return;
                                 }
@@ -1776,14 +1821,14 @@ class CustomizationView extends ConsumerWidget {
                                   clean = 'FF$clean';
                                 } else if (clean.length != 8) {
                                   setState(() {
-                                    errorMessage = 'Invalid hex color: $item';
+                                    errorMessage = l10n.invalidHexColor(item);
                                   });
                                   return;
                                 }
                                 final val = int.tryParse(clean, radix: 16);
                                 if (val == null) {
                                   setState(() {
-                                    errorMessage = 'Invalid hex color: $item';
+                                    errorMessage = l10n.invalidHexColor(item);
                                   });
                                   return;
                                 }
@@ -1794,20 +1839,20 @@ class CustomizationView extends ConsumerWidget {
                                   .setAllWaterColors(parsedColors);
                               Navigator.pop(dialogContext);
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Theme applied successfully.'),
-                                  duration: Duration(seconds: 2),
+                                SnackBar(
+                                  content: Text(l10n.themeAppliedSuccess),
+                                  duration: const Duration(seconds: 2),
                                 ),
                               );
                             } catch (_) {
                               setState(() {
-                                errorMessage = 'Invalid JSON syntax.';
+                                errorMessage = l10n.invalidJsonSyntax;
                               });
                             }
                           },
-                          child: const Text(
-                            'APPLY',
-                            style: TextStyle(
+                          child: Text(
+                            l10n.applyUpper,
+                            style: const TextStyle(
                               fontFamily: 'BebasNeue',
                               fontSize: 14,
                               fontWeight: FontWeight.w900,

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:watersort/data/services/hive_service.dart';
+import 'package:watersort/l10n/app_localizations.dart';
 import 'package:watersort/ui/core/theme/app_theme.dart';
 import 'package:watersort/ui/providers.dart';
 import 'package:watersort/ui/features/home/views/home_view.dart';
@@ -33,7 +34,9 @@ class WaterSortApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Water Sort',
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.dark,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.dark,

@@ -1,0 +1,235 @@
+{
+  "appTitle": "Water Sort",
+  "homeSubtitle": "A COZY COLOR SORTING GAME",
+  "homeLevelPill": "Level {level}",
+  "@homeLevelPill": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "startGame": "Start Game",
+  "continueGame": "Continue",
+  "gameModes": "Game Modes",
+  "customization": "Customization",
+  "howToPlay": "How to Play",
+  "settings": "Settings",
+  "gameModesTitle": "GAME MODES",
+  "selectLevel": "Select Level",
+  "randomPuzzle": "Random Puzzle",
+  "multiplayer": "Multiplayer",
+  "tubeCapacity": "TUBE CAPACITY",
+  "playPuzzle": "PLAY PUZZLE",
+  "selectProfileTitle": "SELECT PROFILE",
+  "createNewProfile": "+ CREATE NEW PROFILE",
+  "createProfileTitle": "CREATE PROFILE",
+  "enterProfileName": "Enter profile name",
+  "selectAvatarEmoji": "SELECT AVATAR EMOJI",
+  "createUpper": "CREATE",
+  "editProfileTitle": "EDIT PROFILE",
+  "saveChanges": "SAVE CHANGES",
+  "levelsTitle": "Levels",
+  "howToPlayTitle": "HOW TO PLAY",
+  "howToPlayStep": "STEP {stepNumber}",
+  "@howToPlayStep": {
+    "placeholders": {
+      "stepNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "howToPlayStep1Title": "Select a Tube",
+  "howToPlayStep1Desc": "Tap any tube to select it. The tube will float up and glow to show it is selected.",
+  "howToPlayStep2Title": "Pour into Matching Color",
+  "howToPlayStep2Desc": "Tap another tube to pour. Water can only be poured onto the same color or into an empty tube.",
+  "howToPlayStep3Title": "Sort All Colors",
+  "howToPlayStep3Desc": "Organize all water segments so each tube contains only one single color.",
+  "howToPlayStep4Title": "Elder & Child Friendly",
+  "howToPlayStep4Desc": "Use the distinct symbols inside each water block to match colors easily without eye strain.",
+  "gotIt": "Got It!",
+  "multiplayerTitle": "MULTIPLAYER",
+  "createRoom": "CREATE ROOM",
+  "diffEasy": "EASY",
+  "diffMedium": "MEDIUM",
+  "diffHard": "HARD",
+  "diffExpert": "EXPERT",
+  "diffExtreme": "EXTREME",
+  "roomCode": "ROOM CODE",
+  "roomCodeCopied": "Room code copied to clipboard",
+  "playThisPuzzle": "PLAY THIS PUZZLE",
+  "joinRoom": "JOIN ROOM",
+  "enterCodeHint": "ENTER CODE (E.G. {code})",
+  "@enterCodeHint": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "joinPuzzle": "JOIN PUZZLE",
+  "invalidRoomCode": "Invalid room code. Please check and try again.",
+  "levelSolvable": "Level is solvable",
+  "levelNotSolvable": "Level is not solvable",
+  "random": "RANDOM",
+  "levelTitle": "LEVEL {levelNumber}",
+  "@levelTitle": {
+    "placeholders": {
+      "levelNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "retry": "Retry",
+  "undo": "UNDO",
+  "moves": "MOVES",
+  "check": "CHECK",
+  "hint": "HINT",
+  "noSolutionPossible": "No solution possible from current state. Try undoing some moves!",
+  "levelComplete": "LEVEL COMPLETE!",
+  "levelCompleteRandomDesc": "You sorted this {difficulty} puzzle in {moveCount} moves.",
+  "@levelCompleteRandomDesc": {
+    "placeholders": {
+      "difficulty": {
+        "type": "String"
+      },
+      "moveCount": {
+        "type": "int"
+      }
+    }
+  },
+  "levelCompleteDesc": "You sorted Level {levelNumber} in {moveCount} moves.",
+  "@levelCompleteDesc": {
+    "placeholders": {
+      "levelNumber": {
+        "type": "int"
+      },
+      "moveCount": {
+        "type": "int"
+      }
+    }
+  },
+  "playAgain": "Play Again",
+  "nextLevel": "Next Level",
+  "home": "Home",
+  "buyMeACoffeeWithEmoji": "Buy Me a Coffee ☕",
+  "timesUp": "TIME'S UP!",
+  "timesUpDesc": "You ran out of time to sort the water colors.",
+  "tryAgain": "Try Again",
+  "restartLevel": "RESTART LEVEL?",
+  "restartLevelDesc": "Are you sure you want to restart the current level? Your current progress will be lost.",
+  "restart": "Restart",
+  "cancel": "Cancel",
+  "cancelUpper": "CANCEL",
+  "backupExportedSuccess": "Backup exported successfully.",
+  "backupExportFailed": "Failed to export backup.",
+  "backupImportedSuccess": "Backup imported successfully.",
+  "backupImportInvalid": "Invalid backup file format.",
+  "backupImportFailed": "Failed to import backup.",
+  "resetProgressTitle": "RESET PROGRESS?",
+  "resetProgressDesc": "This will erase all completed levels, stars, and saved state for this profile. This action cannot be undone.",
+  "resetUpper": "RESET",
+  "progressResetSuccess": "Progress has been reset.",
+  "settingsTitle": "SETTINGS",
+  "sectionGameplayRules": "GAMEPLAY & RULES",
+  "settingTimerTitle": "GAMEPLAY TIMER",
+  "settingTimerDesc": "Add countdown timer to levels for an extra challenge, or keep it off to play relaxed.",
+  "settingHintHelperTitle": "HINT HELPER",
+  "settingHintHelperDesc": "Show a hint button during gameplay to highlight the next optimal move.",
+  "settingCheckButtonTitle": "CHECK BUTTON",
+  "settingCheckButtonDesc": "Replace the hint button with a check button that tells if the level is solvable via tooltip without giving hints.",
+  "settingSuperHardTitle": "SUPER HARD DIFFICULTY",
+  "settingSuperHardDesc": "Only reveal the topmost color; all hidden liquid segments beneath are pure white.",
+  "settingDecrementMovesTitle": "DECREMENT MOVES ON UNDO",
+  "settingDecrementMovesDesc": "Decrease the move counter when undoing a move.",
+  "sectionAudioAnimations": "AUDIO & ANIMATIONS",
+  "settingSoundEffectsTitle": "SOUND EFFECTS",
+  "settingSoundEffectsDesc": "Liquid pouring sounds, tube completion chimes, and victory fanfare.",
+  "settingTurnOffAnimationsTitle": "TURN OFF ANIMATIONS",
+  "settingTurnOffAnimationsDesc": "Instant gameplay mode. Disables pouring physics, ripples, waves, and all sound effects.",
+  "sectionBackupRestore": "BACKUP & RESTORE",
+  "actionExportBackupTitle": "EXPORT BACKUP",
+  "actionExportBackupDesc": "Save your progress",
+  "actionImportBackupTitle": "IMPORT BACKUP",
+  "actionImportBackupDesc": "Restore your progress",
+  "sectionSupportAbout": "SUPPORT & ABOUT",
+  "actionReportBugsTitle": "REPORT BUGS / SUGGESTIONS",
+  "actionReportBugsDesc": "Open GitHub to submit bug reports or propose new features.",
+  "actionBuyCoffeeTitle": "BUY ME A COFFEE",
+  "actionBuyCoffeeDesc": "Support independent development and future game updates.",
+  "actionResetAllProgressTitle": "RESET ALL PROGRESS",
+  "actionResetAllProgressDesc": "Clear all solved level records, stars, and saved states.",
+  "themeMidnight": "MIDNIGHT",
+  "themeCyberpunk": "CYBERPUNK",
+  "themeForest": "FOREST",
+  "themeSpace": "SPACE",
+  "themeRetro": "RETRO",
+  "themeSunset": "SUNSET",
+  "themeNeon": "NEON",
+  "themeOcean": "OCEAN",
+  "themeVolcano": "VOLCANO",
+  "themeAurora": "AURORA",
+  "themeLavender": "LAVENDER",
+  "themeDesert": "DESERT",
+  "themeGlitch": "GLITCH",
+  "themeSakura": "SAKURA",
+  "themeMonochrome": "MONOCHROME",
+  "themeAquamarine": "AQUAMARINE",
+  "themeSolar": "SOLAR",
+  "customizationTitle": "CUSTOMIZATION",
+  "themePalettesTitle": "THEME PALETTES",
+  "customizeLiquidColorsTitle": "CUSTOMIZE LIQUID COLORS",
+  "jsonUpper": "JSON",
+  "liquidColorsResetSuccess": "Liquid colors reset to default.",
+  "resetAllUpper": "RESET ALL",
+  "visualsTitle": "VISUALS",
+  "frostSolvedTubesTitle": "FROST SOLVED TUBES",
+  "frostSolvedTubesDesc": "Apply an icy glass frosting effect to completed tubes to easily focus on active ones.",
+  "tubeThicknessTitle": "TUBE THICKNESS",
+  "tubeThicknessDesc": "Choose how wide or thin test tubes look on screen.",
+  "tubeThicknessSlim": "SLIM",
+  "tubeThicknessMedium": "MEDIUM",
+  "tubeThicknessWide": "WIDE",
+  "tubeThicknessAdaptive": "ADAPTIVE",
+  "customBackgroundTitle": "CUSTOM BACKGROUND IMAGE",
+  "customBackgroundDesc": "Set custom image from your deviice for gameplay background.",
+  "customBackgroundSetSuccess": "Custom background image set successfully.",
+  "changeImage": "CHANGE IMAGE",
+  "setBackgroundImage": "SET BACKGROUND IMAGE",
+  "customBackgroundRemovedSuccess": "Custom background image removed.",
+  "customizeColorTitle": "CUSTOMIZE COLOR",
+  "hexNumber": "HEX #",
+  "iconColorTitle": "ICON COLOR",
+  "whiteUpper": "WHITE",
+  "blackUpper": "BLACK",
+  "hslAdjustmentTitle": "HSL ADJUSTMENT",
+  "palettePresetsTitle": "PALETTE PRESETS",
+  "defaultUpper": "DEFAULT",
+  "applyUpper": "APPLY",
+  "themeJsonTitle": "THEME JSON",
+  "themeJsonCopiedSuccess": "Theme JSON copied to clipboard.",
+  "themeJsonDesc": "Copy, paste or edit 16 liquid colors formatted as a JSON array of hex codes.",
+  "jsonMustBe16Hex": "JSON must be a list of 16 hex colors.",
+  "jsonItemMustBeHex": "Every color item must be a hex string.",
+  "themeAppliedSuccess": "Theme applied successfully.",
+  "invalidJsonSyntax": "Invalid JSON syntax.",
+  "mustContainExactColors": "Must contain exactly {count} colors (found {found}).",
+  "@mustContainExactColors": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "found": {
+        "type": "int"
+      }
+    }
+  },
+  "invalidHexColor": "Invalid hex color: {item}",
+  "@invalidHexColor": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  }
+}

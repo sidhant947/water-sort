@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:watersort/l10n/app_localizations.dart';
 import 'package:watersort/ui/core/theme/app_colors.dart';
 import 'package:watersort/ui/providers.dart';
 
@@ -25,6 +26,7 @@ class SettingsView extends ConsumerWidget {
   }
 
   Future<void> _exportBackup(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final jsonString = await ref
           .read(homeViewModelProvider.notifier)
@@ -39,18 +41,18 @@ class SettingsView extends ConsumerWidget {
       );
       if (uri != null && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Backup exported successfully.'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(l10n.backupExportedSuccess),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to export backup.'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(l10n.backupExportFailed),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -58,6 +60,7 @@ class SettingsView extends ConsumerWidget {
   }
 
   Future<void> _importBackup(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final files = await FilePicker.pickFiles(
         type: FileType.custom,
@@ -78,8 +81,8 @@ class SettingsView extends ConsumerWidget {
           SnackBar(
             content: Text(
               success
-                  ? 'Backup imported successfully.'
-                  : 'Invalid backup file format.',
+                  ? l10n.backupImportedSuccess
+                  : l10n.backupImportInvalid,
             ),
             duration: const Duration(seconds: 2),
           ),
@@ -88,9 +91,9 @@ class SettingsView extends ConsumerWidget {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to import backup.'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(l10n.backupImportFailed),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -98,6 +101,8 @@ class SettingsView extends ConsumerWidget {
   }
 
   void _showResetConfirmationDialog(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -132,7 +137,7 @@ class SettingsView extends ConsumerWidget {
               ),
               const SizedBox(height: 18),
               Text(
-                'RESET PROGRESS?',
+                l10n.resetProgressTitle,
                 style: TextStyle(
                   fontFamily: 'BebasNeue',
                   fontSize: 24,
@@ -143,7 +148,7 @@ class SettingsView extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'This will erase all completed levels, stars, and saved state for this profile. This action cannot be undone.',
+                l10n.resetProgressDesc,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,
@@ -165,7 +170,7 @@ class SettingsView extends ConsumerWidget {
                       ),
                       onPressed: () => Navigator.pop(dialogContext),
                       child: Text(
-                        'CANCEL',
+                        l10n.cancelUpper,
                         style: TextStyle(
                           fontFamily: 'BebasNeue',
                           fontSize: 15,
@@ -194,16 +199,16 @@ class SettingsView extends ConsumerWidget {
                             .resetProgress();
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Progress has been reset.'),
-                              duration: Duration(seconds: 2),
+                            SnackBar(
+                              content: Text(l10n.progressResetSuccess),
+                              duration: const Duration(seconds: 2),
                             ),
                           );
                         }
                       },
-                      child: const Text(
-                        'RESET',
-                        style: TextStyle(
+                      child: Text(
+                        l10n.resetUpper,
+                        style: const TextStyle(
                           fontFamily: 'BebasNeue',
                           fontSize: 15,
                           fontWeight: FontWeight.w900,
@@ -224,6 +229,7 @@ class SettingsView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(homeViewModelProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -263,7 +269,7 @@ class SettingsView extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'SETTINGS',
+                        l10n.settingsTitle,
                         style: TextStyle(
                           fontFamily: 'BebasNeue',
                           fontSize: 26,
@@ -293,16 +299,15 @@ class SettingsView extends ConsumerWidget {
                 children: [
                   _buildSectionHeader(
                     icon: Icons.sports_esports_rounded,
-                    title: 'GAMEPLAY & RULES',
+                    title: l10n.sectionGameplayRules,
                   ),
                   _buildCardGroup(
                     children: [
                       _buildSettingRow(
                         icon: Icons.timer_rounded,
                         iconColor: const Color(0xFF38BDF8),
-                        title: 'GAMEPLAY TIMER',
-                        description:
-                            'Add countdown timer to levels for an extra challenge, or keep it off to play relaxed.',
+                        title: l10n.settingTimerTitle,
+                        description: l10n.settingTimerDesc,
                         value: state.isTimerEnabled,
                         onTap: () => ref
                             .read(homeViewModelProvider.notifier)
@@ -312,9 +317,8 @@ class SettingsView extends ConsumerWidget {
                       _buildSettingRow(
                         icon: Icons.lightbulb_rounded,
                         iconColor: const Color(0xFFFFB300),
-                        title: 'HINT HELPER',
-                        description:
-                            'Show a hint button during gameplay to highlight the next optimal move.',
+                        title: l10n.settingHintHelperTitle,
+                        description: l10n.settingHintHelperDesc,
                         value: state.isHintHelperEnabled,
                         onTap: () => ref
                             .read(homeViewModelProvider.notifier)
@@ -325,22 +329,20 @@ class SettingsView extends ConsumerWidget {
                         _buildSettingRow(
                           icon: Icons.check_circle_outline_rounded,
                           iconColor: const Color(0xFF10B981),
-                          title: 'CHECK BUTTON',
-                          description:
-                              'Replace the hint button with a check button that tells if the level is solvable via tooltip without giving hints.',
+                          title: l10n.settingCheckButtonTitle,
+                          description: l10n.settingCheckButtonDesc,
                           value: state.isCheckButtonEnabled,
                           onTap: () => ref
-                              .read(homeViewModelProvider.notifier)
-                              .toggleCheckButton(),
+                                .read(homeViewModelProvider.notifier)
+                                .toggleCheckButton(),
                         ),
                       ],
                       _buildDivider(),
                       _buildSettingRow(
                         icon: Icons.visibility_off_rounded,
                         iconColor: const Color(0xFFA855F7),
-                        title: 'SUPER HARD DIFFICULTY',
-                        description:
-                            'Only reveal the topmost color; all hidden liquid segments beneath are pure white.',
+                        title: l10n.settingSuperHardTitle,
+                        description: l10n.settingSuperHardDesc,
                         value: state.isSuperHardModeEnabled,
                         onTap: () => ref
                             .read(homeViewModelProvider.notifier)
@@ -350,9 +352,8 @@ class SettingsView extends ConsumerWidget {
                       _buildSettingRow(
                         icon: Icons.undo_rounded,
                         iconColor: const Color(0xFFF43F5E),
-                        title: 'DECREMENT MOVES ON UNDO',
-                        description:
-                            'Decrease the move counter when undoing a move.',
+                        title: l10n.settingDecrementMovesTitle,
+                        description: l10n.settingDecrementMovesDesc,
                         value: state.isUndoDecrementsMovesEnabled,
                         onTap: () => ref
                             .read(homeViewModelProvider.notifier)
@@ -362,7 +363,7 @@ class SettingsView extends ConsumerWidget {
                   ),
                   _buildSectionHeader(
                     icon: Icons.volume_up_rounded,
-                    title: 'AUDIO & ANIMATIONS',
+                    title: l10n.sectionAudioAnimations,
                   ),
                   _buildCardGroup(
                     children: [
@@ -371,9 +372,8 @@ class SettingsView extends ConsumerWidget {
                             ? Icons.volume_up_rounded
                             : Icons.volume_off_rounded,
                         iconColor: const Color(0xFF34D399),
-                        title: 'SOUND EFFECTS',
-                        description:
-                            'Liquid pouring sounds, tube completion chimes, and victory fanfare.',
+                        title: l10n.settingSoundEffectsTitle,
+                        description: l10n.settingSoundEffectsDesc,
                         value: state.isSoundEffectsEnabled,
                         isEnabled: !state.isInstantPouringEnabled,
                         onTap: () => ref
@@ -384,9 +384,8 @@ class SettingsView extends ConsumerWidget {
                       _buildSettingRow(
                         icon: Icons.motion_photos_off_rounded,
                         iconColor: const Color(0xFFF87171),
-                        title: 'TURN OFF ANIMATIONS',
-                        description:
-                            'Instant gameplay mode. Disables pouring physics, ripples, waves, and all sound effects.',
+                        title: l10n.settingTurnOffAnimationsTitle,
+                        description: l10n.settingTurnOffAnimationsDesc,
                         value: state.isInstantPouringEnabled,
                         onTap: () => ref
                             .read(homeViewModelProvider.notifier)
@@ -396,15 +395,15 @@ class SettingsView extends ConsumerWidget {
                   ),
                   _buildSectionHeader(
                     icon: Icons.backup_rounded,
-                    title: 'BACKUP & RESTORE',
+                    title: l10n.sectionBackupRestore,
                   ),
                   _buildCardGroup(
                     children: [
                       _buildActionRow(
                         icon: Icons.file_upload_rounded,
                         iconColor: const Color(0xFF38BDF8),
-                        title: 'EXPORT BACKUP',
-                        description: 'Save your progress',
+                        title: l10n.actionExportBackupTitle,
+                        description: l10n.actionExportBackupDesc,
                         onTap: () => _exportBackup(context, ref),
                         trailing: const Icon(
                           Icons.arrow_forward_ios_rounded,
@@ -416,8 +415,8 @@ class SettingsView extends ConsumerWidget {
                       _buildActionRow(
                         icon: Icons.file_download_rounded,
                         iconColor: const Color(0xFF10B981),
-                        title: 'IMPORT BACKUP',
-                        description: 'Restore your progress',
+                        title: l10n.actionImportBackupTitle,
+                        description: l10n.actionImportBackupDesc,
                         onTap: () => _importBackup(context, ref),
                         trailing: const Icon(
                           Icons.arrow_forward_ios_rounded,
@@ -429,16 +428,15 @@ class SettingsView extends ConsumerWidget {
                   ),
                   _buildSectionHeader(
                     icon: Icons.help_outline_rounded,
-                    title: 'SUPPORT & ABOUT',
+                    title: l10n.sectionSupportAbout,
                   ),
                   _buildCardGroup(
                     children: [
                       _buildActionRow(
                         icon: Icons.bug_report_rounded,
                         iconColor: const Color(0xFFEF4444),
-                        title: 'REPORT BUGS / SUGGESTIONS',
-                        description:
-                            'Open GitHub to submit bug reports or propose new features.',
+                        title: l10n.actionReportBugsTitle,
+                        description: l10n.actionReportBugsDesc,
                         onTap: () => _launchExternalUrl(
                           'https://github.com/sidhant947/water-sort',
                         ),
@@ -452,9 +450,8 @@ class SettingsView extends ConsumerWidget {
                       _buildActionRow(
                         icon: Icons.coffee_rounded,
                         iconColor: const Color(0xFFF59E0B),
-                        title: 'BUY ME A COFFEE',
-                        description:
-                            'Support independent development and future game updates.',
+                        title: l10n.actionBuyCoffeeTitle,
+                        description: l10n.actionBuyCoffeeDesc,
                         onTap: () =>
                             _launchExternalUrl('https://ko-fi.com/sidhant947'),
                         trailing: const Icon(
@@ -467,9 +464,8 @@ class SettingsView extends ConsumerWidget {
                       _buildActionRow(
                         icon: Icons.restart_alt_rounded,
                         iconColor: Colors.redAccent,
-                        title: 'RESET ALL PROGRESS',
-                        description:
-                            'Clear all solved level records, stars, and saved states.',
+                        title: l10n.actionResetAllProgressTitle,
+                        description: l10n.actionResetAllProgressDesc,
                         onTap: () => _showResetConfirmationDialog(context, ref),
                         trailing: const Icon(
                           Icons.arrow_forward_ios_rounded,

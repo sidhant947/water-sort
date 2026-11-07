@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flame/game.dart';
 import 'package:flame_audio/flame_audio.dart';
-
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:watersort/l10n/app_localizations.dart';
 import 'package:watersort/ui/core/theme/app_colors.dart';
 import 'package:watersort/ui/core/widgets/tangible_button.dart';
 import 'package:watersort/ui/features/game/view_models/game_view_model.dart';
@@ -40,7 +40,7 @@ class _GameViewState extends ConsumerState<GameView> {
   Timer? _hudSwitchTimer;
   bool _showTimerInHud = false;
   final GlobalKey<TooltipState> _solvabilityTooltipKey = GlobalKey<TooltipState>();
-  String _solvabilityTooltipMessage = 'Level is solvable';
+  String? _solvabilityTooltipMessage;
 
   @override
   void initState() {
@@ -76,6 +76,9 @@ class _GameViewState extends ConsumerState<GameView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    _solvabilityTooltipMessage ??= l10n.levelSolvable;
+
     final state = ref.watch(gameViewModelProvider);
     if (state.level != null) {
       if (_game == null) {
@@ -209,7 +212,7 @@ class _GameViewState extends ConsumerState<GameView> {
                                 )
                               : Text(
                                   key: const ValueKey('level'),
-                                  state.isRandomMode ? 'RANDOM' : 'LEVEL ${widget.levelNumber}',
+                                  state.isRandomMode ? l10n.random : l10n.levelTitle(widget.levelNumber),
                                   style: TextStyle(
                                     fontFamily: 'BebasNeue',
                                     fontSize: 16,
@@ -261,7 +264,7 @@ class _GameViewState extends ConsumerState<GameView> {
                             onPressed: () => ref
                                 .read(gameViewModelProvider.notifier)
                                 .resetLevel(),
-                            child: const Text('Retry'),
+                            child: Text(l10n.retry),
                           ),
                         ],
                       ),
@@ -277,6 +280,8 @@ class _GameViewState extends ConsumerState<GameView> {
   }
 
   Widget _buildBottomBar(GameViewModelState state) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
@@ -316,7 +321,7 @@ class _GameViewState extends ConsumerState<GameView> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'UNDO',
+                      l10n.undo,
                       style: TextStyle(
                         fontFamily: 'BebasNeue',
                         fontSize: 15,
@@ -335,7 +340,7 @@ class _GameViewState extends ConsumerState<GameView> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'MOVES',
+                  l10n.moves,
                   style: TextStyle(
                     fontFamily: 'BebasNeue',
                     fontSize: 13,
@@ -360,7 +365,7 @@ class _GameViewState extends ConsumerState<GameView> {
               if (state.isCheckButtonEnabled)
                 Tooltip(
                   key: _solvabilityTooltipKey,
-                  message: _solvabilityTooltipMessage,
+                  message: _solvabilityTooltipMessage ?? l10n.levelSolvable,
                   triggerMode: TooltipTriggerMode.manual,
                   preferBelow: false,
                   verticalOffset: 16,
@@ -389,8 +394,8 @@ class _GameViewState extends ConsumerState<GameView> {
                             if (!mounted) return;
                             setState(() {
                               _solvabilityTooltipMessage = isSolvable
-                                  ? 'Level is solvable'
-                                  : 'Level is not solvable';
+                                  ? l10n.levelSolvable
+                                  : l10n.levelNotSolvable;
                             });
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               if (mounted) {
@@ -421,9 +426,9 @@ class _GameViewState extends ConsumerState<GameView> {
                               color: Color(0xFF00E676),
                             ),
                           const SizedBox(width: 6),
-                          const Text(
-                            'CHECK',
-                            style: TextStyle(
+                          Text(
+                            l10n.check,
+                            style: const TextStyle(
                               fontFamily: 'BebasNeue',
                               fontSize: 15,
                               fontWeight: FontWeight.w900,
@@ -442,17 +447,17 @@ class _GameViewState extends ConsumerState<GameView> {
                       ? null
                       : () async {
                           final success = await ref
-                              .read(gameViewModelProvider.notifier)
-                              .showHint();
+                                .read(gameViewModelProvider.notifier)
+                                .showHint();
                           if (!mounted) return;
                           if (!success) {
                             ScaffoldMessenger.of(context).hideCurrentSnackBar();
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                 content: Text(
-                                  'No solution possible from current state. Try undoing some moves!',
+                                  l10n.noSolutionPossible,
                                 ),
-                                duration: Duration(seconds: 2),
+                                duration: const Duration(seconds: 2),
                               ),
                             );
                           }
@@ -479,9 +484,9 @@ class _GameViewState extends ConsumerState<GameView> {
                             color: Color(0xFFFFB300),
                           ),
                         const SizedBox(width: 6),
-                        const Text(
-                          'HINT',
-                          style: TextStyle(
+                        Text(
+                          l10n.hint,
+                          style: const TextStyle(
                             fontFamily: 'BebasNeue',
                             fontSize: 15,
                             fontWeight: FontWeight.w900,
@@ -508,6 +513,8 @@ class _GameViewState extends ConsumerState<GameView> {
 
   void _showCompleteDialog() {
     final state = ref.read(gameViewModelProvider);
+    final l10n = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -542,7 +549,7 @@ class _GameViewState extends ConsumerState<GameView> {
               ),
               const SizedBox(height: 20),
               Text(
-                'LEVEL COMPLETE!',
+                l10n.levelComplete,
                 style: TextStyle(
                   fontFamily: 'BebasNeue',
                   fontSize: 28,
@@ -554,8 +561,8 @@ class _GameViewState extends ConsumerState<GameView> {
               const SizedBox(height: 8),
               Text(
                 state.isRandomMode
-                    ? 'You sorted this ${state.randomDifficulty} puzzle in ${state.moveCount} moves.'
-                    : 'You sorted Level ${widget.levelNumber} in ${state.moveCount} moves.',
+                    ? l10n.levelCompleteRandomDesc(state.randomDifficulty ?? '', state.moveCount)
+                    : l10n.levelCompleteDesc(widget.levelNumber, state.moveCount),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'BebasNeue',
@@ -570,7 +577,7 @@ class _GameViewState extends ConsumerState<GameView> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   TangibleButton(
-                    text: state.isRandomMode ? 'Play Again' : 'Next Level',
+                    text: state.isRandomMode ? l10n.playAgain : l10n.nextLevel,
                     height: 50,
                     onPressed: () async {
                       final notifier = ref.read(gameViewModelProvider.notifier);
@@ -598,7 +605,7 @@ class _GameViewState extends ConsumerState<GameView> {
                   ),
                   const SizedBox(height: 12),
                   TangibleButton(
-                    text: 'Home',
+                    text: l10n.home,
                     isSecondary: true,
                     height: 50,
                     onPressed: () async {
@@ -611,7 +618,7 @@ class _GameViewState extends ConsumerState<GameView> {
                   ),
                   const SizedBox(height: 12),
                   TangibleButton(
-                    text: 'Buy Me a Coffee ☕',
+                    text: l10n.buyMeACoffeeWithEmoji,
                     isSecondary: true,
                     height: 50,
                     onPressed: () async {
@@ -643,6 +650,8 @@ class _GameViewState extends ConsumerState<GameView> {
   }
 
   void _showTimeOutDialog() {
+    final l10n = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -676,7 +685,7 @@ class _GameViewState extends ConsumerState<GameView> {
               ),
               const SizedBox(height: 20),
               Text(
-                "TIME'S UP!",
+                l10n.timesUp,
                 style: TextStyle(
                   fontFamily: 'BebasNeue',
                   fontSize: 28,
@@ -687,7 +696,7 @@ class _GameViewState extends ConsumerState<GameView> {
               ),
               const SizedBox(height: 8),
               Text(
-                "You ran out of time to sort the water colors.",
+                l10n.timesUpDesc,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'BebasNeue',
@@ -702,7 +711,7 @@ class _GameViewState extends ConsumerState<GameView> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   TangibleButton(
-                    text: 'Try Again',
+                    text: l10n.tryAgain,
                     height: 50,
                     onPressed: () {
                       Navigator.pop(context);
@@ -711,7 +720,7 @@ class _GameViewState extends ConsumerState<GameView> {
                   ),
                   const SizedBox(height: 12),
                   TangibleButton(
-                    text: 'Home',
+                    text: l10n.home,
                     isSecondary: true,
                     height: 50,
                     onPressed: () {
@@ -727,7 +736,10 @@ class _GameViewState extends ConsumerState<GameView> {
       ),
     );
   }
+
   void _showRestartConfirmationDialog() {
+    final l10n = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -761,7 +773,7 @@ class _GameViewState extends ConsumerState<GameView> {
               ),
               const SizedBox(height: 20),
               Text(
-                'RESTART LEVEL?',
+                l10n.restartLevel,
                 style: TextStyle(
                   fontFamily: 'BebasNeue',
                   fontSize: 28,
@@ -772,7 +784,7 @@ class _GameViewState extends ConsumerState<GameView> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Are you sure you want to restart the current level? Your current progress will be lost.',
+                l10n.restartLevelDesc,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'BebasNeue',
@@ -787,7 +799,7 @@ class _GameViewState extends ConsumerState<GameView> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   TangibleButton(
-                    text: 'Restart',
+                    text: l10n.restart,
                     height: 50,
                     onPressed: () {
                       Navigator.pop(context);
@@ -796,7 +808,7 @@ class _GameViewState extends ConsumerState<GameView> {
                   ),
                   const SizedBox(height: 12),
                   TangibleButton(
-                    text: 'Cancel',
+                    text: l10n.cancel,
                     isSecondary: true,
                     height: 50,
                     onPressed: () {

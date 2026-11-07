@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:watersort/l10n/app_localizations.dart';
 import 'package:watersort/ui/core/theme/app_colors.dart';
 import 'package:watersort/ui/core/widgets/tangible_button.dart';
 import 'package:watersort/ui/features/game/views/game_view.dart';
@@ -27,12 +28,29 @@ class _HomeViewState extends ConsumerState<HomeView> {
     Future.microtask(() => ref.read(homeViewModelProvider.notifier).loadProgress());
   }
 
-
+  String _difficultyLabel(BuildContext context, String value) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (value) {
+      case 'Easy':
+        return l10n.diffEasy;
+      case 'Medium':
+        return l10n.diffMedium;
+      case 'Hard':
+        return l10n.diffHard;
+      case 'Super Hard':
+        return l10n.diffExpert;
+      case 'Super Duper Hard':
+        return l10n.diffExtreme;
+      default:
+        return value;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(homeViewModelProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
@@ -119,11 +137,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ],
               ),
               const Spacer(flex: 3),
-
-
-              // Game Title
               Text(
-                'WATER SORT',
+                l10n.appTitle.toUpperCase(),
                 style: TextStyle(
                   fontFamily: 'BebasNeue',
                   fontSize: 54,
@@ -134,7 +149,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               ),
               const SizedBox(height: 4),
               Text(
-                'A COZY COLOR SORTING GAME',
+                l10n.homeSubtitle,
                 style: TextStyle(
                   fontFamily: 'BebasNeue',
                   fontSize: 15,
@@ -143,10 +158,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   letterSpacing: 1.2,
                 ),
               ),
-
               const Spacer(flex: 2),
-
-              // Single line Level Panel (Pill style)
               if (state.progress != null) ...[
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
@@ -166,7 +178,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     ],
                   ),
                   child: Text(
-                    'Level ${state.progress!.currentLevel}',
+                    l10n.homeLevelPill(state.progress!.currentLevel),
                     style: TextStyle(
                       fontFamily: 'BebasNeue',
                       fontSize: 16,
@@ -180,10 +192,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
               ] else ...[
                 const Spacer(flex: 5),
               ],
-
-              // Play Button (Primary CTA)
               TangibleButton(
-                text: state.progress == null || state.progress!.currentLevel <= 1 ? 'Start Game' : 'Continue',
+                text: state.progress == null || state.progress!.currentLevel <= 1
+                    ? l10n.startGame
+                    : l10n.continueGame,
                 onPressed: state.isLoading
                     ? null
                     : () async {
@@ -196,19 +208,15 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         ref.read(homeViewModelProvider.notifier).loadProgress();
                       },
               ),
-
               const SizedBox(height: 12),
-
               TangibleButton(
-                text: 'Game Modes',
+                text: l10n.gameModes,
                 isSecondary: true,
                 onPressed: () => _showGameModesSheet(context),
               ),
-
               const SizedBox(height: 12),
-
               TangibleButton(
-                text: 'Customization',
+                text: l10n.customization,
                 isSecondary: true,
                 onPressed: () => Navigator.push(
                   context,
@@ -217,12 +225,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 12),
-
-              // How to Play Button (Secondary Button)
               TangibleButton(
-                text: 'How to Play',
+                text: l10n.howToPlay,
                 isSecondary: true,
                 onPressed: () => Navigator.push(
                   context,
@@ -231,11 +236,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 12),
-
               TangibleButton(
-                text: 'Settings',
+                text: l10n.settings,
                 isSecondary: true,
                 onPressed: () => Navigator.push(
                   context,
@@ -253,6 +256,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   void _showGameModesSheet(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF141418),
@@ -278,7 +283,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  'GAME MODES',
+                  l10n.gameModesTitle,
                   style: TextStyle(
                     fontFamily: 'BebasNeue',
                     fontSize: 24,
@@ -289,7 +294,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
                 const SizedBox(height: 20),
                 TangibleButton(
-                  text: 'Select Level',
+                  text: l10n.selectLevel,
                   isSecondary: true,
                   onPressed: () {
                     Navigator.pop(sheetContext);
@@ -303,7 +308,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
                 const SizedBox(height: 12),
                 TangibleButton(
-                  text: 'Random Puzzle',
+                  text: l10n.randomPuzzle,
                   isSecondary: true,
                   onPressed: () {
                     Navigator.pop(sheetContext);
@@ -312,7 +317,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
                 const SizedBox(height: 12),
                 TangibleButton(
-                  text: 'Multiplayer',
+                  text: l10n.multiplayer,
                   isSecondary: true,
                   onPressed: () {
                     Navigator.pop(sheetContext);
@@ -333,6 +338,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   void _showDifficultyDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (context) {
@@ -359,21 +366,22 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     children: [
                       const SizedBox(height: 12),
                       ...[
-                        {'label': 'EASY', 'value': 'Easy', 'defaultCap': 4},
-                        {'label': 'MEDIUM', 'value': 'Medium', 'defaultCap': 4},
-                        {'label': 'HARD', 'value': 'Hard', 'defaultCap': 5},
-                        {'label': 'EXPERT', 'value': 'Super Hard', 'defaultCap': 5},
-                        {'label': 'EXTREME', 'value': 'Super Duper Hard', 'defaultCap': 6},
+                        {'value': 'Easy', 'defaultCap': 4},
+                        {'value': 'Medium', 'defaultCap': 4},
+                        {'value': 'Hard', 'defaultCap': 5},
+                        {'value': 'Super Hard', 'defaultCap': 5},
+                        {'value': 'Super Duper Hard', 'defaultCap': 6},
                       ].map((diff) {
-                        final isSelected = selectedDifficulty == diff['value'];
+                        final diffValue = diff['value'] as String;
+                        final isSelected = selectedDifficulty == diffValue;
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: TangibleButton(
-                            text: diff['label'] as String,
+                            text: _difficultyLabel(context, diffValue),
                             isSecondary: !isSelected,
                             onPressed: () {
                               setState(() {
-                                selectedDifficulty = diff['value'] as String;
+                                selectedDifficulty = diffValue;
                                 selectedCapacity = diff['defaultCap'] as int;
                               });
                             },
@@ -385,7 +393,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'TUBE CAPACITY',
+                            l10n.tubeCapacity,
                             style: TextStyle(
                               fontFamily: 'BebasNeue',
                               fontSize: 16,
@@ -419,7 +427,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       ),
                       const SizedBox(height: 24),
                       TangibleButton(
-                        text: 'PLAY PUZZLE',
+                        text: l10n.playPuzzle,
                         onPressed: () {
                           Navigator.pop(context);
                           Navigator.push(
@@ -439,7 +447,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       TextButton(
                         onPressed: () => Navigator.pop(context),
                         child: Text(
-                          'CANCEL',
+                          l10n.cancelUpper,
                           style: TextStyle(
                             fontFamily: 'BebasNeue',
                             color: AppColors.subtext,
@@ -466,6 +474,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
         return Consumer(
           builder: (context, ref, child) {
             final state = ref.watch(homeViewModelProvider);
+            final l10n = AppLocalizations.of(context)!;
+
             return Dialog(
               backgroundColor: const Color(0xFF181818),
               elevation: 0,
@@ -482,7 +492,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'SELECT PROFILE',
+                      l10n.selectProfileTitle,
                       style: TextStyle(
                         fontFamily: 'BebasNeue',
                         fontSize: 26,
@@ -583,7 +593,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     ),
                     const SizedBox(height: 16),
                     TangibleButton(
-                      text: '+ CREATE NEW PROFILE',
+                      text: l10n.createNewProfile,
                       onPressed: () {
                         Navigator.pop(context);
                         _showCreateProfileDialog(context);
@@ -593,7 +603,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: Text(
-                        'CANCEL',
+                        l10n.cancelUpper,
                         style: TextStyle(
                           fontFamily: 'BebasNeue',
                           color: AppColors.subtext,
@@ -613,6 +623,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   void _showCreateProfileDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController();
     String selectedEmoji = '🧪';
     final emojis = ['🧪', '🧬', '💧', '🎨', '🔮', '🌟', '🔥', '🏆', '👾', '🚀'];
@@ -638,7 +649,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'CREATE PROFILE',
+                      l10n.createProfileTitle,
                       style: TextStyle(
                         fontFamily: 'BebasNeue',
                         fontSize: 26,
@@ -652,7 +663,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       controller: nameController,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
-                        hintText: 'Enter profile name',
+                        hintText: l10n.enterProfileName,
                         hintStyle: const TextStyle(color: Color(0xFF666666)),
                         filled: true,
                         fillColor: const Color(0xFF1C1C22),
@@ -671,7 +682,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'SELECT AVATAR EMOJI',
+                        l10n.selectAvatarEmoji,
                         style: TextStyle(
                           color: AppColors.subtext,
                           fontWeight: FontWeight.bold,
@@ -709,7 +720,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     ),
                     const SizedBox(height: 24),
                     TangibleButton(
-                      text: 'CREATE',
+                      text: l10n.createUpper,
                       onPressed: nameController.text.trim().isEmpty
                           ? null
                           : () {
@@ -724,7 +735,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: Text(
-                        'CANCEL',
+                        l10n.cancelUpper,
                         style: TextStyle(
                           fontFamily: 'BebasNeue',
                           color: AppColors.subtext,
@@ -744,6 +755,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   void _showEditProfileDialog(BuildContext context, UserProfile profile) {
+    final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController(text: profile.name);
     String selectedEmoji = profile.avatarEmoji;
     final emojis = ['🧪', '🧬', '💧', '🎨', '🔮', '🌟', '🔥', '🏆', '👾', '🚀'];
@@ -769,7 +781,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'EDIT PROFILE',
+                      l10n.editProfileTitle,
                       style: TextStyle(
                         fontFamily: 'BebasNeue',
                         fontSize: 26,
@@ -783,7 +795,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       controller: nameController,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
-                        hintText: 'Enter profile name',
+                        hintText: l10n.enterProfileName,
                         hintStyle: const TextStyle(color: Color(0xFF666666)),
                         filled: true,
                         fillColor: const Color(0xFF1C1C22),
@@ -802,7 +814,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'SELECT AVATAR EMOJI',
+                        l10n.selectAvatarEmoji,
                         style: TextStyle(
                           color: AppColors.subtext,
                           fontWeight: FontWeight.bold,
@@ -840,7 +852,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     ),
                     const SizedBox(height: 24),
                     TangibleButton(
-                      text: 'SAVE CHANGES',
+                      text: l10n.saveChanges,
                       onPressed: nameController.text.trim().isEmpty
                           ? null
                           : () {
@@ -859,7 +871,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         _showProfileSwitcherDialog(context);
                       },
                       child: Text(
-                        'CANCEL',
+                        l10n.cancelUpper,
                         style: TextStyle(
                           fontFamily: 'BebasNeue',
                           color: AppColors.subtext,
