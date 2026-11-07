@@ -1,0 +1,235 @@
+{
+  "appTitle": "Water Sort",
+  "homeSubtitle": "EIN GEMÜTLICHES FARBSORTIER-SPIEL",
+  "homeLevelPill": "Level {level}",
+  "@homeLevelPill": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "startGame": "Spiel starten",
+  "continueGame": "Fortsetzen",
+  "gameModes": "Spielmodi",
+  "customization": "Anpassung",
+  "howToPlay": "Spielanleitung",
+  "settings": "Einstellungen",
+  "gameModesTitle": "SPIELMODI",
+  "selectLevel": "Level auswählen",
+  "randomPuzzle": "Zufälliges Rätsel",
+  "multiplayer": "Mehrspieler",
+  "tubeCapacity": "RÖHRCHEN-KAPAZITÄT",
+  "playPuzzle": "RÄTSEL SPIELEN",
+  "selectProfileTitle": "PROFIL AUSWÄHLEN",
+  "createNewProfile": "+ NEUES PROFIL ERSTELLEN",
+  "createProfileTitle": "PROFIL ERSTELLEN",
+  "enterProfileName": "Profilnamen eingeben",
+  "selectAvatarEmoji": "AVATAR-EMOJI AUSWÄHLEN",
+  "createUpper": "ERSTELLEN",
+  "editProfileTitle": "PROFIL BEARBEITEN",
+  "saveChanges": "ÄNDERUNGEN SPEICHERN",
+  "levelsTitle": "Level",
+  "howToPlayTitle": "SPIELANLEITUNG",
+  "howToPlayStep": "SCHRITT {stepNumber}",
+  "@howToPlayStep": {
+    "placeholders": {
+      "stepNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "howToPlayStep1Title": "Wähle ein Röhrchen",
+  "howToPlayStep1Desc": "Tippe auf ein Röhrchen, um es auszuwählen. Es schwebt nach oben und leuchtet auf.",
+  "howToPlayStep2Title": "In passende Farbe gießen",
+  "howToPlayStep2Desc": "Tippe auf ein anderes Röhrchen zum Umfüllen. Wasser kann nur auf dieselbe Farbe oder in ein leeres Röhrchen gegossen werden.",
+  "howToPlayStep3Title": "Sortiere alle Farben",
+  "howToPlayStep3Desc": "Ordne alle Wassersegmente so an, dass jedes Röhrchen nur eine einzige Farbe enthält.",
+  "howToPlayStep4Title": "Senioren- & kinderfreundlich",
+  "howToPlayStep4Desc": "Nutze die eindeutigen Symbole in den Wasserblöcken, um Farben ohne Anstrengung für die Augen zu unterscheiden.",
+  "gotIt": "Verstanden!",
+  "multiplayerTitle": "MEHRSPIELER",
+  "createRoom": "RAUM ERSTELLEN",
+  "diffEasy": "EINFACH",
+  "diffMedium": "MITTEL",
+  "diffHard": "SCHWER",
+  "diffExpert": "EXPERTE",
+  "diffExtreme": "EXTREM",
+  "roomCode": "RAUM-CODE",
+  "roomCodeCopied": "Raum-Code in die Zwischenablage kopiert",
+  "playThisPuzzle": "DIESES RÄTSEL SPIELEN",
+  "joinRoom": "RAUM BEITRETEN",
+  "enterCodeHint": "CODE EINGEBEN (Z. B. {code})",
+  "@enterCodeHint": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "joinPuzzle": "RÄTSEL BEITRETEN",
+  "invalidRoomCode": "Ungültiger Raum-Code. Bitte überprüfen und erneut versuchen.",
+  "levelSolvable": "Level ist lösbar",
+  "levelNotSolvable": "Level ist nicht lösbar",
+  "random": "ZUFALL",
+  "levelTitle": "LEVEL {levelNumber}",
+  "@levelTitle": {
+    "placeholders": {
+      "levelNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "retry": "Wiederholen",
+  "undo": "RÜCKGÄNGIG",
+  "moves": "ZÜGE",
+  "check": "PRÜFEN",
+  "hint": "HINWEIS",
+  "noSolutionPossible": "Aus dem aktuellen Zustand ist keine Lösung möglich. Versuche, einige Züge rückgängig zu machen!",
+  "levelComplete": "LEVEL ABGESCHLOSSEN!",
+  "levelCompleteRandomDesc": "Du hast dieses {difficulty}-Rätsel in {moveCount} Zügen gelöst.",
+  "@levelCompleteRandomDesc": {
+    "placeholders": {
+      "difficulty": {
+        "type": "String"
+      },
+      "moveCount": {
+        "type": "int"
+      }
+    }
+  },
+  "levelCompleteDesc": "Du hast Level {levelNumber} in {moveCount} Zügen gelöst.",
+  "@levelCompleteDesc": {
+    "placeholders": {
+      "levelNumber": {
+        "type": "int"
+      },
+      "moveCount": {
+        "type": "int"
+      }
+    }
+  },
+  "playAgain": "Nochmals spielen",
+  "nextLevel": "Nächstes Level",
+  "home": "Hauptmenü",
+  "buyMeACoffeeWithEmoji": "Gib mir einen Kaffee aus ☕",
+  "timesUp": "DIE ZEIT IST UM!",
+  "timesUpDesc": "Dir ist die Zeit zum Sortieren der Wasserfarben ausgegangen.",
+  "tryAgain": "Erneut versuchen",
+  "restartLevel": "LEVEL NEU STARTEN?",
+  "restartLevelDesc": "Bist du sicher, dass du das aktuelle Level neu starten möchtest? Dein aktueller Fortschritt geht verloren.",
+  "restart": "Neustart",
+  "cancel": "Abbrechen",
+  "cancelUpper": "ABBRECHEN",
+  "backupExportedSuccess": "Backup erfolgreich exportiert.",
+  "backupExportFailed": "Export des Backups fehlgeschlagen.",
+  "backupImportedSuccess": "Backup erfolgreich importiert.",
+  "backupImportInvalid": "Ungültiges Backup-Dateiformat.",
+  "backupImportFailed": "Import des Backups fehlgeschlagen.",
+  "resetProgressTitle": "FORTSCHRITT ZURÜCKSETZEN?",
+  "resetProgressDesc": "Dadurch werden alle abgeschlossenen Level, Sterne und gespeicherten Zustände für dieses Profil gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
+  "resetUpper": "ZURÜCKSETZEN",
+  "progressResetSuccess": "Fortschritt wurde zurückgesetzt.",
+  "settingsTitle": "EINSTELLUNGEN",
+  "sectionGameplayRules": "SPIELEINSTELLUNGEN",
+  "settingTimerTitle": "GAMEPLAY-TIMER",
+  "settingTimerDesc": "Füge Levels einen Countdown-Timer für eine zusätzliche Herausforderung hinzu oder lasse ihn ausgeschaltet, um entspannt zu spielen.",
+  "settingHintHelperTitle": "HINWEIS-HELFER",
+  "settingHintHelperDesc": "Zeige während des Spiels eine Hinweis-Schaltfläche an, um den nächsten optimalen Zug hervorzuheben.",
+  "settingCheckButtonTitle": "PRÜFEN-SCHALTFLÄCHE",
+  "settingCheckButtonDesc": "Ersetze die Hinweis-Schaltfläche durch eine Prüfen-Schaltfläche, die per Tooltip anzeigt, ob das Level lösbar ist, ohne direkte Hinweise zu geben.",
+  "settingSuperHardTitle": "SUPER-SCHWERER SCHWIERIGKEITSGRAD",
+  "settingSuperHardDesc": "Zeige nur die oberste Farbe an. Alle darunter verborgenen Flüssigkeitssegmente sind rein weiß.",
+  "settingDecrementMovesTitle": "ZÜGE BEI RÜCKGÄNGIG VERRINGERN",
+  "settingDecrementMovesDesc": "Verringere den Zugzähler, wenn ein Zug rückgängig gemacht wird.",
+  "sectionAudioAnimations": "AUDIO & ANIMATIONEN",
+  "settingSoundEffectsTitle": "SOUNDEFFEKTE",
+  "settingSoundEffectsDesc": "Geräusche beim Umfüllen von Flüssigkeiten, Töne beim Fertigstellen von Röhrchen und Siegesfanfaren.",
+  "settingTurnOffAnimationsTitle": "ANIMATIONEN AUSSCHALTEN",
+  "settingTurnOffAnimationsDesc": "Sofortiges Gameplay. Deaktiviert Gießphysik, Wellen, Effekte und alle Soundeffekte.",
+  "sectionBackupRestore": "SICHERUNG & WIEDERHERSTELLUNG",
+  "actionExportBackupTitle": "BACKUP EXPORTIEREN",
+  "actionExportBackupDesc": "Sichere deinen Fortschritt",
+  "actionImportBackupTitle": "BACKUP IMPORTIEREN",
+  "actionImportBackupDesc": "Stelle deinen Fortschritt wieder her",
+  "sectionSupportAbout": "SUPPORT & INFO",
+  "actionReportBugsTitle": "FEHLER MELDEN / VORSCHLÄGE",
+  "actionReportBugsDesc": "Öffne GitHub, um Fehlerberichte einzureichen oder neue Funktionen vorzuschlagen.",
+  "actionBuyCoffeeTitle": "GIB MIR EINEN KAFFEE AUS",
+  "actionBuyCoffeeDesc": "Unterstütze die unabhängige Entwicklung und zukünftige Spiel-Updates.",
+  "actionResetAllProgressTitle": "GESAMTEN FORTSCHRITT ZURÜCKSETZEN",
+  "actionResetAllProgressDesc": "Lösche alle gelösten Level-Einträge, Sterne und gespeicherten Zustände.",
+  "themeMidnight": "MITTERNACHT",
+  "themeCyberpunk": "CYBERPUNK",
+  "themeForest": "WALD",
+  "themeSpace": "WELTRAUM",
+  "themeRetro": "RETRO",
+  "themeSunset": "SONNENUNTERGANG",
+  "themeNeon": "NEON",
+  "themeOcean": "OZEAN",
+  "themeVolcano": "VULKAN",
+  "themeAurora": "AURORA",
+  "themeLavender": "LAVENDEL",
+  "themeDesert": "WÜSTE",
+  "themeGlitch": "GLITCH",
+  "themeSakura": "SAKURA",
+  "themeMonochrome": "MONOCHROM",
+  "themeAquamarine": "AQUAMARIN",
+  "themeSolar": "SOLAR",
+  "customizationTitle": "ANPASSUNG",
+  "themePalettesTitle": "THEMEN-PALETTEN",
+  "customizeLiquidColorsTitle": "FLÜSSIGKEITSFARBEN ANPASSEN",
+  "jsonUpper": "JSON",
+  "liquidColorsResetSuccess": "Flüssigkeitsfarben auf Standard zurückgesetzt.",
+  "resetAllUpper": "ALLES ZURÜCKSETZEN",
+  "visualsTitle": "OPTIK",
+  "frostSolvedTubesTitle": "GELÖSTE RÖHRCHEN GEFRIEREN",
+  "frostSolvedTubesDesc": "Wende einen Mattglas-Effekt auf fertiggestellte Röhrchen an, um dich leicht auf die aktiven zu konzentrieren.",
+  "tubeThicknessTitle": "RÖHRCHEN-DICKE",
+  "tubeThicknessDesc": "Wähle, wie breit oder dünn die Röhrchen auf dem Bildschirm erscheinen.",
+  "tubeThicknessSlim": "SCHMAL",
+  "tubeThicknessMedium": "MITTEL",
+  "tubeThicknessWide": "BREIT",
+  "tubeThicknessAdaptive": "ANPASSEN",
+  "customBackgroundTitle": "BENUTZERDEFINIERTES HINTERGRUNDBILD",
+  "customBackgroundDesc": "Wähle ein eigenes Bild von deinem Gerät als Spielhintergrund.",
+  "customBackgroundSetSuccess": "Benutzerdefiniertes Hintergrundbild erfolgreich festgelegt.",
+  "changeImage": "BILD ÄNDERN",
+  "setBackgroundImage": "HINTERGRUNDBILD FESTLEGEN",
+  "customBackgroundRemovedSuccess": "Benutzerdefiniertes Hintergrundbild entfernt.",
+  "customizeColorTitle": "FARBE ANPASSEN",
+  "hexNumber": "HEX #",
+  "iconColorTitle": "ICON-FARBE",
+  "whiteUpper": "WEISS",
+  "blackUpper": "SCHWARZ",
+  "hslAdjustmentTitle": "HSL-ANPASSUNG",
+  "palettePresetsTitle": "PALETTEN-VOREINSTELLUNGEN",
+  "defaultUpper": "STANDARD",
+  "applyUpper": "ANWENDEN",
+  "themeJsonTitle": "THEMEN-JSON",
+  "themeJsonCopiedSuccess": "Themen-JSON in die Zwischenablage kopiert.",
+  "themeJsonDesc": "Kopiere, füge ein oder bearbeite 16 Flüssigkeitsfarben im Format eines JSON-Arrays aus Hex-Codes.",
+  "jsonMustBe16Hex": "JSON muss eine Liste von 16 Hex-Farben sein.",
+  "jsonItemMustBeHex": "Jedes Farbelement muss eine Hex-Zeichenkette sein.",
+  "themeAppliedSuccess": "Design erfolgreich angewendet.",
+  "invalidJsonSyntax": "Ungültige JSON-Syntax.",
+  "mustContainExactColors": "Muss genau {count} Farben enthalten ({found} gefunden).",
+  "@mustContainExactColors": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "found": {
+        "type": "int"
+      }
+    }
+  },
+  "invalidHexColor": "Ungültige Hex-Farbe: {item}",
+  "@invalidHexColor": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  }
+}
